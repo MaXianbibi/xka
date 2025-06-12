@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# XKA — Xecution Kit for Application flow
 
-## Getting Started
+**XKA** is a high-performance, modular, distributed execution engine built to prototype, run, and scale logic-based applications and automation flows.
 
-First, run the development server:
+It provides a visual builder frontend (React + React Flow) decoupled from an ultra-efficient Go-based runtime.  
+Designed for developers, builders, and advanced users who need more control, less bloat, and better performance than tools like n8n or Make.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Key Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- ⚙️ **Distributed, Scalable Worker System**
+  - Built in Go for extreme performance and low memory usage (10–25MB per worker)
+  - Horizontal scaling: deploy workers anywhere — locally, on VPS, edge, or cloud
+  - Smart concurrency control via goroutines
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🧱 **Visual Workflow Builder**
+  - React + React Flow powered interface
+  - Drag-and-drop nodes to build execution graphs
+  - Persisted workflows via PostgreSQL
 
-## Learn More
+- 🧠 **Separation of Concerns**
+  - Next.js frontend (auth, user dashboard, DB)
+  - Go backend (job queue API, task management)
+  - Independent deployments (host UI on Vercel, workers on custom infra)
 
-To learn more about Next.js, take a look at the following resources:
+- 🔐 **Authentication & User Management**
+  - Powered by NextAuth.js
+  - PostgreSQL for sessions, user data, and stored flows
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- ⚡ **Redis-backed Job Queue**
+  - Fast and reliable queueing layer
+  - Priority routing and per-type worker targeting (LLM, HTTP, compute, etc.)
