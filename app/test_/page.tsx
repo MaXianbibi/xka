@@ -26,6 +26,7 @@ import '@xyflow/react/dist/style.css';
 
 import TextUpdaterNode from './custom_node/input_node'
 import CustomEdge from './custom_edges/canDeleteEdge';
+import { saveWorkflow } from '@/app/lib/Workflow/workflow';
 
 const initialNodes = [
     { id: 'a', position: { x: 0, y: 0 }, data: { label: '1' } },
@@ -96,12 +97,28 @@ export default function Page() {
             >
                 <Panel position="bottom-center" className="w-fit">
                     <button
+                        onClick={async () => {
+                            if (rfInstance) {
+                                const workflowData = rfInstance.toObject();
+                                const formData = new FormData();
+                                formData.append('flowData', JSON.stringify(workflowData));
+
+                                const result = await saveWorkflow(formData); // 👈 await ici
+                                console.log('Result from server action:', result);
+                            }
+                            else {
+                                console.error("React Flow instance is not initialized.");
+                                alert("React Flow instance is not initialized. Please try again.");
+                            }
+                        } 
+                    }
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg shadow hover:shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center gap-2"
                     >
                         Run Workflow
-                        <MdScience className="" size={25}/>
+                        <MdScience size={25} />
                     </button>
                 </Panel>
+
 
                 <Controls >
                 </Controls>
