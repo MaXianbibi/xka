@@ -24,22 +24,23 @@ import { MdScience } from "react-icons/md";
 
 import '@xyflow/react/dist/style.css';
 
-import TextUpdaterNode from './custom_node/input_node'
+import HttpRequestNode from './custom_node/HttpRequestNode'
+import ManualStartNode from './custom_node/ManuelStartNode';
 import CustomEdge from './custom_edges/canDeleteEdge';
 import { saveWorkflow } from '@/app/lib/Workflow/workflow';
 
 const initialNodes = [
-    { id: 'a', position: { x: 0, y: 0 }, data: { label: '1' } },
-    { id: 'b', position: { x: 0, y: 100 }, data: { label: '2' } },
-    { id: 'c', position: { x: 0, y: 200 }, type: 'textUpdater', data: { label: '3' } },
-    { id: 'd', position: { x: 0, y: 300 }, data: { label: 'd' } },
-
+    { id: 'c', position: { x: 0, y: 200 }, type: 'httpRequestNode', data: { "method": "GET", "url": "https://catfact.ninja/fact" } },
+    { id: 'b', position: { x: 0, y: 100 }, type: 'manualStartNode', data: { label: '2' } },
+    
 ];
 
-const nodeTypes = { textUpdater: TextUpdaterNode };
-const edgeTypes = {
-    'custom-edge': CustomEdge,
+const nodeTypes = { 
+    httpRequestNode: HttpRequestNode,
+    manualStartNode: ManualStartNode
 };
+
+
 
 const initialEdges: Edge[] = [
     {
@@ -57,10 +58,7 @@ const initialEdges: Edge[] = [
 export default function Page() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
     const [rfInstance, setRfInstance] = React.useState<any>(null);
-
-
 
     const onConnect = useCallback((connection: Connection) => {
         console.log(rfInstance.toObject());
@@ -68,7 +66,7 @@ export default function Page() {
             addEdge(
                 {
                     ...connection,
-                    type: 'custom-edge',
+                    
                     markerEnd: {
                         type: MarkerType.ArrowClosed,
                         color: 'white',
@@ -92,7 +90,6 @@ export default function Page() {
                 colorMode='dark'
                 fitView
                 nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
                 onInit={setRfInstance}
             >
                 <Panel position="bottom-center" className="w-fit">
