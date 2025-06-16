@@ -1,5 +1,9 @@
 'use server';
 
+import axios from 'axios';
+
+import httpClient from '@/app/lib/httpClient/httpClient';
+
 export async function saveWorkflow(formData: FormData) {
   const raw = formData.get('flowData');
 
@@ -30,9 +34,10 @@ export async function saveWorkflow(formData: FormData) {
     const payload = JSON.stringify({ nodes, edges });
 
 
-    // TODO: Save to DB or forward to another service
+    const response = await httpClient.post('/workflow', payload);
 
-    
+
+
 
     return { success: true, nodes, edges };
   } catch (err) {

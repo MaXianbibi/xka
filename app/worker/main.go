@@ -30,7 +30,7 @@ func main() {
 		w.Write([]byte("Welcome to your Go server 👋"))
 	})
 
-	r.Post("/workflow", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/v1/workflow", func(w http.ResponseWriter, r *http.Request) {
 		var payload map[string]interface{}
 
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
