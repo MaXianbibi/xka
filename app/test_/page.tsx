@@ -43,16 +43,7 @@ const nodeTypes = {
 
 
 const initialEdges: Edge[] = [
-    {
-        id: 'a->b',
-        source: 'a',
-        target: 'b',
-        type: 'custom-edge',
-        markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: 'white',
-        },
-    },
+ 
 ];
 
 export default function Page() {

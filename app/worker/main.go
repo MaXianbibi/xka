@@ -6,7 +6,8 @@ import (
 
 
 	"worker-managers/logger"
-	"go.uber.org/zap"
+	"worker-managers/nodeStruct"
+	// "go.uber.org/zap"
 
 
 	"github.com/go-chi/chi/v5"
@@ -41,8 +42,10 @@ func main() {
 		// Log or process your data here
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"status": "received"})
+		// logger.Log.Info("Received workflow data", zap.Any("data", payload))
 		
-		logger.Log.Info("Received workflow data", zap.Any("data", payload))
+		nodeStruct.ParseWorkflow(payload)
+		
 	})
 
 	// Lancer le serveur
