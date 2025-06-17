@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"worker-managers/RedisClient"
 	"worker-managers/logger"
 	"worker-managers/workflow"
 	"worker-managers/workflow/parser"
@@ -19,6 +20,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"path/filepath"
+
+	"github.com/joho/godotenv"
 )
 
 // Server configuration constants
@@ -207,6 +212,25 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 	}
 
 	// 2. Save to database
+
+	client := RedisClient.GetClient()
+	if client == nil {
+		s.logger.Error("Redis client not initialized")
+		s.writeErrorResponse(w, http.StatusInternalServerError, "Internal server error", "Redis client not initialized")
+		return // juste return, pas de panic
+	}
+
+	_, err = client.LPush("workflows", string(jsonData))
+	if err != nil {
+		s.logger.Error("Failed to save workflow to Redis",
+			zap.String("request_id", requestID),
+			zap.Error(err),
+		)
+		s.writeErrorResponse(w, http.StatusInternalServerError, "Failed to save workflow", err.Error())
+		return
+	}
+		
+
 	// 3. Queue for execution
 	// 4. Return execution ID
 
@@ -350,9 +374,29 @@ func (s *Server) Start() error {
 
 // main is the application entry point with proper error handling
 func main() {
+
 	// Initialize logging system first
 	logger.Init()
 	defer logger.Log.Sync() // Ensure logs are flushed
+
+	envPath := filepath.Join("..", "..", ".env")
+	err := godotenv.Load(envPath)
+	if err != nil {
+		logger.Log.Warn("No .env file found, using default environment variables",
+			zap.String("path", envPath),
+			zap.Error(err),
+		)
+	} else {
+		logger.Log.Info(".env file loaded successfully",
+			zap.String("path", envPath),
+		)
+	}
+
+	client := RedisClient.GetClient()
+	if client == nil {
+		logger.Log.Fatal("Failed to initialize Redis client")
+		os.Exit(1)
+	}
 
 	logger.Log.Info("Initializing Worker Manager API Server",
 		zap.String("version", "1.0.0"),
