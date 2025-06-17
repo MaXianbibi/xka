@@ -8,7 +8,7 @@ const version = process.env.API_VERSION?.toLowerCase() || 'v1';
 const protocol = ssl ? 'https' : 'http';
 
 const httpClient = axios.create({
-  baseURL: `${protocol}://${host}:${port}/${version}`,
+  baseURL: `${protocol}://${host}:${port}/api/${version}`,
   headers: {
     'Content-Type': 'application/json',
   },
