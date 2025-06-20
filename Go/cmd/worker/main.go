@@ -13,6 +13,10 @@ import (
 
 	"XKA/pkg/RedisClient"
 	"XKA/pkg/logger"
+
+	"XKA/internal/shared/builder"
+
+	"XKA/internal/worker/runner"
 )
 
 const (
@@ -124,13 +128,21 @@ func processJob(client *RedisClient.Client) error {
 	}
 
 	// Job found
-	logger.Log.Info("Job received",
+	logger.Log.Debug("Job received",
 		zap.String("queue", job[0]),
 		zap.String("job", job[1]),
 	)
 
 	// TODO: Process job here
 	// processJobData(job[1])
+
+	workflow, err := builder.ParseWorkflowFromJSON( job[1])
+	if err != nil {
+		logger.Log.Error("Failed to parse workflow from JSON", zap.Error(err))
+		return err
+	}
+
+	runner.Run(workflow, "")
 
 	return nil
 }

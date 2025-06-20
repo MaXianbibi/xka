@@ -19,7 +19,7 @@ import (
 
 	"XKA/pkg/RedisClient"
 	"XKA/pkg/logger"
-	"XKA/internal/worker-manager/builder"
+	"XKA/internal/shared/builder"
 	"XKA/internal/worker-manager/parser"
 
 )
