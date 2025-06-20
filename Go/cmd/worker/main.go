@@ -102,8 +102,8 @@ func runWorker(ctx context.Context, client *RedisClient.Client) {
 			return
 		default:
 			if err := processJob(client); err != nil {
-				logger.Log.Error("Failed to process job", zap.Error(err))
-				time.Sleep(retryDelay)
+				// logger.Log.Error("Failed to process job", zap.Error(err))
+				// time.Sleep(retryDelay)
 			}
 		}
 	}
@@ -123,7 +123,7 @@ func processJob(client *RedisClient.Client) error {
 
 	// No job available (timeout)
 	if job == nil {
-		logger.Log.Debug("No job available, continuing...")
+		// logger.Log.Debug("No job available, continuing...")
 		return nil
 	}
 
@@ -142,7 +142,11 @@ func processJob(client *RedisClient.Client) error {
 		return err
 	}
 
-	runner.Run(workflow, "")
+	testID := "test_" + time.Now().Format("20060102150405")
+	err = runner.Run(workflow, testID)
+	if err != nil {
+		logger.Log.Error("Failed to run workflow", zap.Error(err))
+	}
 
 	return nil
 }

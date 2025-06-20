@@ -1,164 +1,113 @@
 package runner
 
 import (
-	"context"
 	"fmt"
-	"sync"
-
 	"XKA/internal/shared/builder"
 )
 
-// NodeExecutor defines the interface for node execution
+// NodeExecutor interface pour les exécuteurs de nodes
 type NodeExecutor interface {
-	Execute(ctx context.Context, node *builder.Node) error
-	CanHandle(nodeType string) bool
+	Execute(node *builder.Node) error
 }
 
-// ExecutionContext holds runtime state and data for workflow execution
-type ExecutionContext struct {
-	RunID     string
-	Variables map[string]interface{}
-	mu        sync.RWMutex
+// WorkflowRunner gère l'exécution des workflows
+type WorkflowRunner struct {
+	executors map[string]NodeExecutor
 }
 
-func (ec *ExecutionContext) SetVariable(key string, value interface{}) {
-	ec.mu.Lock()
-	defer ec.mu.Unlock()
-	if ec.Variables == nil {
-		ec.Variables = make(map[string]interface{})
+// NewWorkflowRunner crée une nouvelle instance du runner
+func NewWorkflowRunner() *WorkflowRunner {
+	runner := &WorkflowRunner{
+		executors: make(map[string]NodeExecutor),
 	}
-	ec.Variables[key] = value
+	
+	// Enregistrer les exécuteurs par défaut
+	runner.RegisterExecutor("manualStartNode", &ManualStartExecutor{})
+	runner.RegisterExecutor("httpRequestNode", &HttpExecutor{})
+	
+	return runner
 }
 
-func (ec *ExecutionContext) GetVariable(key string) (interface{}, bool) {
-	ec.mu.RLock()
-	defer ec.mu.RUnlock()
-	val, exists := ec.Variables[key]
-	return val, exists
+// RegisterExecutor enregistre un exécuteur pour un type de node
+func (wr *WorkflowRunner) RegisterExecutor(nodeType string, executor NodeExecutor) {
+	wr.executors[nodeType] = executor
 }
 
-// Runner manages workflow execution with pluggable node executors
-type Runner struct {
-	executors []NodeExecutor
-}
-
-func NewRunner() *Runner {
-	return &Runner{
-		executors: make([]NodeExecutor, 0),
+// Run exécute un workflow avec une seule node de départ
+func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) error {
+	if wf == nil {
+		return fmt.Errorf("workflow is nil")
 	}
-}
-
-func (r *Runner) RegisterExecutor(executor NodeExecutor) {
-	r.executors = append(r.executors, executor)
-}
-
-func (r *Runner) Run(ctx context.Context, wf *builder.Workflow, runID string) error {
+	
 	if len(wf.StartNodeIDs) == 0 {
 		return fmt.Errorf("no start nodes found")
 	}
-
-	execCtx := &ExecutionContext{
-		RunID:     runID,
-		Variables: make(map[string]interface{}),
-	}
-
-	visited := make(map[string]bool)
-	inputCounts := make(map[string]int)
-
-	// Initialize input counts
-	for _, node := range wf.NodeMap {
-		inputCounts[node.ID] = node.InitialInputs
-	}
-
-	// Process start nodes
-	queue := make([]string, 0, len(wf.StartNodeIDs))
-	for _, startID := range wf.StartNodeIDs {
-		if wf.NodeMap[startID] != nil {
-			queue = append(queue, startID)
-		}
-	}
-
-	return r.processQueue(ctx, wf, execCtx, queue, visited, inputCounts)
-}
-
-func (r *Runner) processQueue(ctx context.Context, wf *builder.Workflow, execCtx *ExecutionContext, 
-	queue []string, visited map[string]bool, inputCounts map[string]int) error {
 	
+	// Prendre seulement la première node de départ
+	firstNodeID := wf.StartNodeIDs[0]
+	
+	// Créer une queue avec la première node
+	queue := []string{firstNodeID}
+	
+	// Traiter la queue une node à la fois
 	for len(queue) > 0 {
-		nodeID := queue[0]
-		queue = queue[1:]
-
-		if visited[nodeID] {
-			continue
-		}
-
-		node := wf.NodeMap[nodeID]
+		// Prendre la première node de la queue
+		currentNodeID := queue[0]
+		queue = queue[1:] // Retirer la première node
+		
+		node := wf.NodeMap[currentNodeID]
 		if node == nil {
-			continue
+			return fmt.Errorf("node with ID %s not found", currentNodeID)
 		}
 
-		// Check if all inputs are satisfied
-		if inputCounts[nodeID] > 0 {
-			// Node not ready, skip for now
-			continue
+
+		if err := wr.executeNode(node); err != nil {
+			return fmt.Errorf("node %s execution failed: %w", currentNodeID, err)
 		}
-
-		// Execute node
-		if err := r.executeNode(ctx, node, execCtx); err != nil {
-			return fmt.Errorf("failed to execute node %s: %w", nodeID, err)
-		}
-
-		visited[nodeID] = true
-
-		// Process next nodes
-		for _, nextID := range node.NextIDs {
-			if nextNode := wf.NodeMap[nextID]; nextNode != nil {
-				// Decrement input count for next node
-				inputCounts[nextID]--
-				
-				// Add to queue if ready to execute
-				if inputCounts[nextID] <= 0 && !visited[nextID] {
-					queue = append(queue, nextID)
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func (r *Runner) executeNode(ctx context.Context, node *builder.Node, execCtx *ExecutionContext) error {
-	for _, executor := range r.executors {
-		if executor.CanHandle(node.Type) {
-			return executor.Execute(ctx, node)
-		}
+		
+		// Ajouter les nodes suivantes à la queue
+		queue = append(queue, node.NextIDs...)
 	}
 	
-	// Default: skip unknown node types
 	return nil
 }
 
-// Built-in executors
+// executeNode exécute une node individuelle
+func (wr *WorkflowRunner) executeNode(node *builder.Node) error {
+	if node == nil {
+		return fmt.Errorf("node is nil")
+	}
+	
+	executor, exists := wr.executors[node.Type]
 
+	if !exists {
+		return fmt.Errorf("no executor found for node type: %s", node.Type)
+	}
+	
+	return executor.Execute(node)
+}
+
+// Implémentations des exécuteurs par défaut
+
+// ManualStartExecutor exécute les nodes de démarrage manuel
 type ManualStartExecutor struct{}
 
-func (e *ManualStartExecutor) CanHandle(nodeType string) bool {
-	return nodeType == "manualStartNode"
-}
-
-func (e *ManualStartExecutor) Execute(ctx context.Context, node *builder.Node) error {
-	// Manual start nodes don't need execution logic
+func (e *ManualStartExecutor) Execute(node *builder.Node) error {
+	fmt.Printf("Starting workflow from node: %s\n", node.ID)
 	return nil
 }
 
-type HTTPExecutor struct{}
+// HttpExecutor exécute les nodes HTTP
+type HttpExecutor struct{}
 
-func (e *HTTPExecutor) CanHandle(nodeType string) bool {
-	return nodeType == "HttpNode"
-}
-
-func (e *HTTPExecutor) Execute(ctx context.Context, node *builder.Node) error {
-	// TODO: Implement HTTP execution logic
+func (e *HttpExecutor) Execute(node *builder.Node) error {
 	fmt.Printf("Executing HTTP node: %s\n", node.ID)
+	// TODO: Implémenter l'appel HTTP réel
 	return nil
+}
+
+// Fonction helper pour utilisation simple
+func Run(wf *builder.Workflow, runID string) error {
+	runner := NewWorkflowRunner()
+	return runner.Run(wf, runID)
 }
