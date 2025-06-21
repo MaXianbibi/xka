@@ -42,9 +42,13 @@ export async function saveWorkflow(formData: FormData) {
     const response = await httpClient.post('/workflow', payload);
 
 
+    console.log('Workflow saved successfully', response.data);
+    if (response.status !== 200) {
+      console.error('Failed to save workflow', response.status, response.data);
+      return { success: false, error: 'Failed to save workflow' };
+    }
 
-
-    return { success: true, nodes, edges };
+    return { success: true, data: response.data, id };
   } catch (err) {
     console.error('Failed to parse flowData', err);
     return { success: false, error: 'Invalid JSON' };

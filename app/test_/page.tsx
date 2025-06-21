@@ -26,18 +26,22 @@ import '@xyflow/react/dist/style.css';
 
 import HttpRequestNode from './custom_node/HttpRequestNode'
 import ManualStartNode from './custom_node/ManuelStartNode';
+import WaitingNode from './custom_node/WaitingNode';
 import CustomEdge from './custom_edges/canDeleteEdge';
 import { saveWorkflow } from '@/app/lib/Workflow/workflow';
 
 const initialNodes = [
     { id: 'c', position: { x: 0, y: 200 }, type: 'httpRequestNode', data: { "method": "GET", "url": "https://catfact.ninja/fact" } },
     { id: 'b', position: { x: 0, y: 100 }, type: 'manualStartNode', data: { label: '2' } },
+    { id: 'a', position: { x: 0, y: 0 }, type: 'waitingNode', data: { duration: 1000 } },
+    
     
 ];
 
 const nodeTypes = { 
     httpRequestNode: HttpRequestNode,
-    manualStartNode: ManualStartNode
+    manualStartNode: ManualStartNode,
+    waitingNode: WaitingNode,
 };
 
 

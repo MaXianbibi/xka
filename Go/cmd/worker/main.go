@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -11,12 +13,11 @@ import (
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 
+	"XKA/internal/shared/builder"
+	"XKA/internal/worker/runner"
 	"XKA/pkg/RedisClient"
 	"XKA/pkg/logger"
 
-	"XKA/internal/shared/builder"
-
-	"XKA/internal/worker/runner"
 )
 
 const (
@@ -143,10 +144,17 @@ func processJob(client *RedisClient.Client) error {
 	}
 
 	testID := "test_" + time.Now().Format("20060102150405")
-	err = runner.Run(workflow, testID)
+	wRes, err := runner.Run(workflow, testID)
 	if err != nil {
 		logger.Log.Error("Failed to run workflow", zap.Error(err))
 	}
+
+	jsonData, err := json.Marshal(wRes)
+	if err != nil {
+		logger.Log.Error("Failed to marshal workflow result to JSON", zap.Error(err))
+	}
+
+	fmt.Println("Workflow Result:", string(jsonData))
 
 	return nil
 }

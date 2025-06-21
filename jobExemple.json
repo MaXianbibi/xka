@@ -1,0 +1,4 @@
+{
+    "queue": "workflows",
+    "job": "{\n  \"id\": \"6a3b0292-3ddb-45c1-9353-d4220a7194bf\",\n  \"nodeMap\": {\n    \"a\": {\n      \"id\": \"a\",\n      \"type\": \"waitingNode\",\n      \"data\": {\n        \"duration\": \"1000\"\n      },\n      \"nextIds\": [\n        \"c\"\n      ],\n      \"previousIds\": [\n        \"b\"\n      ],\n      \"initialInputs\": 1\n    },\n    \"b\": {\n      \"id\": \"b\",\n      \"type\": \"manualStartNode\",\n      \"data\": {\n        \"label\": \"2\"\n      },\n      \"nextIds\": [\n        \"a\"\n      ],\n      \"previousIds\": [],\n      \"initialInputs\": 0\n    },\n    \"c\": {\n      \"id\": \"c\",\n      \"type\": \"httpRequestNode\",\n      \"data\": {\n        \"method\": \"GET\",\n        \"url\": \"https://catfact.ninja/fact\"\n      },\n      \"nextIds\": [],\n      \"previousIds\": [\n        \"a\"\n      ],\n      \"initialInputs\": 1\n    }\n  },\n  \"startNodeIds\": [\n    \"b\"\n  ]\n}"
+}

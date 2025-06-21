@@ -1,0 +1,118 @@
+{
+    "workflowId": "2811c58e-c8d8-49b3-b539-8382dd607668",
+    "status": "success",
+    "startedAt": 1750543218,
+    "endedAt": 1750543218,
+    "durationMs": 356,
+    "nodes": [
+        {
+            "nodeId": "b",
+            "nodeType": "manualStartNode",
+            "status": "success",
+            "timestamp": 1750543218,
+            "durationMs": 0,
+            "result": {
+                "message": "Workflow started successfully"
+            },
+            "logs": [
+                "Executing manualStartNode node: b",
+                "Starting workflow from node: b"
+            ],
+            "meta": {}
+        },
+        {
+            "nodeId": "a",
+            "nodeType": "waitingNode",
+            "status": "success",
+            "timestamp": 1750543218,
+            "durationMs": 200,
+            "result": {
+                "message": "Waited 200ms",
+                "waitedMs": 200
+            },
+            "logs": [
+                "Executing waitingNode node: a",
+                "Waiting 200ms...",
+                "Wait completed"
+            ],
+            "meta": {}
+        },
+        {
+            "nodeId": "c",
+            "nodeType": "httpRequestNode",
+            "status": "success",
+            "timestamp": 1750543218,
+            "durationMs": 155,
+            "result": {
+                "body": "{\"fact\":\"Cats have 30 teeth (12 incisors, 10 premolars, 4 canines, and 4 molars), while dogs have 42. Kittens have baby teeth, which are replaced by permanent teeth around the age of 7 months.\",\"length\":183}",
+                "headers": {
+                    "Access-Control-Allow-Origin": [
+                        "*"
+                    ],
+                    "Alt-Svc": [
+                        "h3=\":443\"; ma=86400"
+                    ],
+                    "Cache-Control": [
+                        "no-cache, private"
+                    ],
+                    "Cf-Cache-Status": [
+                        "DYNAMIC"
+                    ],
+                    "Cf-Ray": [
+                        "9536c72b0ad1a284-YUL"
+                    ],
+                    "Content-Type": [
+                        "application/json"
+                    ],
+                    "Date": [
+                        "Sat, 21 Jun 2025 22:00:18 GMT"
+                    ],
+                    "Nel": [
+                        "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+                    ],
+                    "Report-To": [
+                        "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1ViPS0zMMANcdr1ZpMNUwcu1Uc04Gb%2FzA%2Bb%2FddDMQuDY9eUAwLAsibKiiaS2%2BBIW5jcjtqWn2u8uZmUZAYxg3DMUKsITNrhPiq0u\"}]}"
+                    ],
+                    "Server": [
+                        "cloudflare"
+                    ],
+                    "Set-Cookie": [
+                        "XSRF-TOKEN=eyJpdiI6IlgrUnptRE5YM0ZnN3BCVkRKVTl6Unc9PSIsInZhbHVlIjoienE1Zmd3M0daMnpzSkVQb2Y1RTNXMkVFMFBaWkxXbWR6aU1WTkpoeTI4NHM3dnN5WTZ4MzE0bk1GV3IvTy8vTmhNSWdrWFpOVnRHbjhYdzBESGRXUVVYQ0dPY3JNTGpGSTY3S2FuckFOc0txcUFGdm5VQW9MVnVvY2JZZERHVXEiLCJtYWMiOiI2MGQ2ZDUyY2M5MWZkYzVmNjQwZGU5NzYwZDU5ZTNjMGRiMTE5OWY4YTJmMzhmNmI2YTNiNWZlNjJiMTFmNTkxIiwidGFnIjoiIn0%3D; SameSite=Lax; Secure; Path=/; Max-Age=7200; Expires=Sun, 22 Jun 2025 00:00:18 GMT",
+                        "catfacts_session=eyJpdiI6IjlEQzZRVThwS1NZLzdmRUFOOXUxV2c9PSIsInZhbHVlIjoiZEFBSTQzUjBQOGw0RDgrWW5zdVBnQWxWTGF3Vmx0cThJbEFlazY0VkZsVWZxc3NHcEdvYmF4NDR1U0JVU0ZUMVBvMXY3blpZYm93L2hXVDlxVldlYWpRUVlFdEVDV1RtcDRZUlFKVUN5ZXpXR0R1THFKM1VXcmx0QlRxejZmbHIiLCJtYWMiOiJiNDI4YmM2ODkxZjYxYzg5NDlhNTQ4NjE3OWQxYjNhYzAwOTQ4ZTc5NWMzZTFmYjYwOGFhZmQ0NTczM2IzYzU4IiwidGFnIjoiIn0%3D; HttpOnly; SameSite=Lax; Secure; Path=/; Max-Age=7200; Expires=Sun, 22 Jun 2025 00:00:18 GMT",
+                        "tUJA0dZHzTjtFr7YIoO8ywqAjdcq82UHuhRu2aop=eyJpdiI6Ik8yQTYxK05wUFBhNnltRDFLakVsQUE9PSIsInZhbHVlIjoiVlhTTlhQU2gyQ3l4VG43RFlCYXh4UGcrTXFBTllPeWtDaitKdnQvWUd3WXc2YXBwcEdCdEdDUWRxaHVON3Z2a2JXWGplZFNJRjlOYUVHalYyTklFbnRRVnQrVGdnZC9TS256LzJvaE5qMStpRW9mVUhEc1RncE9YTFAvaXBsNG50K3hrdmxiV04zc0EySUxkc21GeDNPVFRNV0RYdXdOR3ZJOTFqbEN2N3R4b0E0TFlEdVVoa0FQM1B6M0JlcExCanpSWXdwc21ZYnJoaEFJN0lISk5GcjJ1alRhazk3Y080cDBUdk1hUUlNaXVXd0haS2ZLYnYwakF4ZW1jR2wvTzBWNEtDcEkya3FIS0Zla0FZTlFjS0JQdEFXTHA3d09CMGhLcVRSekMyYm1oMmJjVHhNdXlXTzdyc0oyOWJNaCtSM0krTVkweHUzRUUyUEZINlZVUW00WDNUMmdHdGN0Zm1PQkpsaVJpMkxKN2psTzN0OE0vaXpRVmNLNE9Pd0ZWIiwibWFjIjoiMTcwNjhiMjNmOTJkNTZlYWE2ZmQ0NWM1MWEyN2UyNTU2MWM0OTYxNWZjN2U4OWU3ZDRlMTY2ZGU0ZGViMzE4MiIsInRhZyI6IiJ9; HttpOnly; SameSite=Lax; Secure; Path=/; Max-Age=7200; Expires=Sun, 22 Jun 2025 00:00:18 GMT"
+                    ],
+                    "X-Content-Type-Options": [
+                        "nosniff"
+                    ],
+                    "X-Frame-Options": [
+                        "SAMEORIGIN"
+                    ],
+                    "X-Ratelimit-Limit": [
+                        "100"
+                    ],
+                    "X-Ratelimit-Remaining": [
+                        "88"
+                    ],
+                    "X-Xss-Protection": [
+                        "1; mode=block"
+                    ]
+                },
+                "method": "GET",
+                "statusCode": 200,
+                "url": "https://catfact.ninja/fact"
+            },
+            "logs": [
+                "Executing httpRequestNode node: c",
+                "HTTP request completed (status: 200)"
+            ],
+            "meta": {
+                "contentLength": 207,
+                "contentType": "application/json"
+            }
+        }
+    ],
+    "logs": [
+        "Starting workflow execution with node: b",
+        "Workflow execution completed successfully in 356ms"
+    ]
+}

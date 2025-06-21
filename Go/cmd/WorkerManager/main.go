@@ -154,7 +154,6 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 			zap.String("request_id", requestID),
 			zap.Error(err),
 		)
-
 		s.writeErrorResponse(w, http.StatusBadRequest, "Invalid JSON payload", err.Error())
 		return
 	}
@@ -165,7 +164,6 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 			zap.String("request_id", requestID),
 			zap.Error(err),
 		)
-
 		s.writeErrorResponse(w, http.StatusBadRequest, "Invalid workflow payload", err.Error())
 		return
 	}
@@ -177,11 +175,10 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 			zap.String("request_id", requestID),
 			zap.Error(err),
 		)
-
 		s.writeErrorResponse(w, http.StatusUnprocessableEntity, "Failed to parse workflow", err.Error())
 		return
 	}
-
+	
 	// Log successful parsing with metrics
 	s.logger.Info("Workflow parsed successfully",
 		zap.String("request_id", requestID),
@@ -189,66 +186,84 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 		zap.Int("edge_count", len(parsedWorkflow.Edges)),
 	)
 
-	// TODO: Here you would typically:
+	// Return success response immediately to client
+	response := APIResponse{
+		Status:  "success",
+		Message: "Workflow parsed and queued successfully",
+		Data: map[string]interface{}{
+			"id":         payload["id"].(string),
+			"request_id": requestID,
+			"node_count": len(parsedWorkflow.Nodes),
+			"edge_count": len(parsedWorkflow.Edges),
+			"created_at": time.Now().UTC().Format(time.RFC3339),
+		},
+	}
 
+	s.writeJSONResponse(w, http.StatusCreated, response)
+
+	// Process workflow in background (non-blocking)
+	go s.processWorkflowAsync(parsedWorkflow, payload, requestID)
+}
+
+// processWorkflowAsync handles the workflow initialization and storage asynchronously
+func (s *Server) processWorkflowAsync(parsedWorkflow *parser.Payload, payload map[string]interface{}, requestID string) {
+	// Initialize workflow
 	workflowComplete, err := builder.InitWorkflow(parsedWorkflow)
 	if err != nil {
 		s.logger.Error("Workflow initialization failed",
 			zap.String("request_id", requestID),
 			zap.Error(err),
 		)
-
-		s.writeErrorResponse(w, http.StatusUnprocessableEntity, "Failed to initialize workflow", err.Error())
 		return
 	}
-	
-	workflowComplete.ID = payload["id"].(string) 
 
+	// Set workflow ID from payload
+	workflowComplete.ID = payload["id"].(string)
+
+	// Convert to JSON for storage
 	jsonData, err := json.MarshalIndent(workflowComplete, "", "  ")
 	if err != nil {
-		fmt.Println("Erreur de conversion JSON :", err)
-	} else {
-		fmt.Println("Workflow JSON formaté :", string(jsonData))
+		s.logger.Error("Failed to marshal workflow to JSON",
+			zap.String("request_id", requestID),
+			zap.Error(err),
+		)
+		return
 	}
 
+	s.logger.Debug("Workflow JSON formatted",
+		zap.String("request_id", requestID),
+		zap.String("workflow_id", workflowComplete.ID),
+	)
 
-	// 2. Save to database
-
-	client := RedisClient.GetClient()
-	if client == nil {
-		s.logger.Error("Redis client not initialized")
-		s.writeErrorResponse(w, http.StatusInternalServerError, "Internal server error", "Redis client not initialized")
-		return // juste return, pas de panic
-	}
-
-	_, err = client.LPush("workflows", string(jsonData))
-	if err != nil {
+	// Save to Redis
+	if err := s.saveWorkflowToRedis(jsonData, requestID); err != nil {
 		s.logger.Error("Failed to save workflow to Redis",
 			zap.String("request_id", requestID),
 			zap.Error(err),
 		)
-		s.writeErrorResponse(w, http.StatusInternalServerError, "Failed to save workflow", err.Error())
 		return
 	}
-		
 
-	// 3. Queue for execution
-	// 4. Return execution ID
+	s.logger.Info("Workflow successfully processed and saved",
+		zap.String("request_id", requestID),
+		zap.String("workflow_id", workflowComplete.ID),
+	)
 
-	// Return success response with workflow summary
-	response := APIResponse{
-		Status:  "success",
-		Message: "Workflow parsed and queued successfully",
-		Data: map[string]interface{}{
-			"request_id": requestID,
-			"node_count": len(parsedWorkflow.Nodes),
-			"edge_count": len(parsedWorkflow.Edges),
-			"created_at": time.Now().UTC().Format(time.RFC3339),
-			// "execution_id": "uuid-here", // TODO: Add when implementing execution
-		},
+	// TODO: Queue for execution
+	// s.queueWorkflowForExecution(workflowComplete, requestID)
+}
+
+// saveWorkflowToRedis handles Redis storage with proper error handling
+func (s *Server) saveWorkflowToRedis(jsonData []byte, requestID string) error {
+	client := RedisClient.GetClient()
+	if client == nil {
+		return fmt.Errorf("redis client not initialized")
 	}
-
-	s.writeJSONResponse(w, http.StatusCreated, response)
+	_, err := client.LPush("workflows", string(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to push to Redis: %w", err)
+	}
+	return nil
 }
 
 // handleWorkflowValidation validates workflow without processing it

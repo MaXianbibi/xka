@@ -1,0 +1,52 @@
+import { memo, useCallback } from 'react';
+import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
+import { MdAccessTime } from 'react-icons/md';
+
+function WaitingNode({ id, data, isConnectable }: NodeProps) {
+  const { setNodes } = useReactFlow();
+
+  const updateData = useCallback((key: string, value: string) => {
+    setNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === id ? { ...node, data: { ...node.data, [key]: value } } : node
+      )
+    );
+  }, [id, setNodes]);
+
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 text-white rounded-2xl p-4 w-80 text-sm font-sans transition-all duration-200 hover:shadow-[0_8px_24px_rgba(120,120,255,0.1)]">
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable}
+        style={{ background: '#6c63ff' }}
+      />
+
+      <div className="flex items-center gap-3 mb-3">
+        <MdAccessTime className="w-5 h-5 text-indigo-400" />
+        <label className="text-zinc-300 font-medium">ATTENDRE:</label>
+      </div>
+
+      <div className="nodrag flex items-center w-full px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
+        <input
+          type="number"
+          value={typeof data.duration === 'string' ? data.duration : ''}
+          onChange={(e) => updateData('duration', e.target.value)}
+          placeholder="1000"
+          min="0"
+          className="w-full bg-transparent focus:outline-none text-white"
+        />
+        <span className="text-zinc-400 ml-2 text-xs">ms</span>
+      </div>
+
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable}
+        style={{ background: '#6c63ff' }}
+      />
+    </div>
+  );
+}
+
+export default memo(WaitingNode);
