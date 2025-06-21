@@ -4,6 +4,9 @@ import axios from 'axios';
 
 import httpClient from '@/app/lib/httpClient/httpClient';
 
+import { v4 as uuidv4 } from 'uuid';
+
+
 export async function saveWorkflow(formData: FormData) {
   const raw = formData.get('flowData');
 
@@ -31,7 +34,9 @@ export async function saveWorkflow(formData: FormData) {
       type: edge.type ?? null,
     }));
 
-    const payload = JSON.stringify({ nodes, edges });
+    const id = uuidv4();
+
+    const payload = JSON.stringify({ nodes, edges, id });
 
 
     const response = await httpClient.post('/workflow', payload);

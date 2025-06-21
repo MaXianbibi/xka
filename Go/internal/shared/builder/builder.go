@@ -2,10 +2,9 @@
 package builder
 
 import (
-	"fmt"
-	"encoding/json"
 	"XKA/internal/worker-manager/parser"
-
+	"encoding/json"
+	"fmt"
 )
 
 // Node represents a processed, execution-ready workflow node.
@@ -22,6 +21,7 @@ type Node struct {
 // Workflow represents the complete processed workflow graph.
 // Provides efficient access to nodes and execution entry points.
 type Workflow struct {
+	ID           string           `json:"id"`           // Unique workflow identifier
 	NodeMap      map[string]*Node `json:"nodeMap"`      // Fast lookup table for nodes by ID
 	StartNodeIDs []string         `json:"startNodeIds"` // IDs of entry points for workflow execution
 }
@@ -169,7 +169,6 @@ func (w *Workflow) FindNodesByType(nodeType string) []*Node {
 	return nodes
 }
 
-
 // ParseWorkflowFromJSON deserializes a JSON string into a Workflow struct.
 // This function is the reverse operation of serializing a Workflow to JSON.
 func ParseWorkflowFromJSON(jsonData string) (*Workflow, error) {
@@ -304,8 +303,8 @@ func validateDeserializedWorkflow(workflow *Workflow) error {
 		// Validate InitialInputs matches PreviousIDs count
 		if node.InitialInputs != len(node.PreviousIDs) {
 			return &WorkflowError{
-				Field:   "node.InitialInputs",
-				Message: fmt.Sprintf("node %s InitialInputs (%d) does not match PreviousIDs count (%d)", 
+				Field: "node.InitialInputs",
+				Message: fmt.Sprintf("node %s InitialInputs (%d) does not match PreviousIDs count (%d)",
 					node.ID, node.InitialInputs, len(node.PreviousIDs)),
 			}
 		}

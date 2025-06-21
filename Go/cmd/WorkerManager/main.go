@@ -201,6 +201,8 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 		s.writeErrorResponse(w, http.StatusUnprocessableEntity, "Failed to initialize workflow", err.Error())
 		return
 	}
+	
+	workflowComplete.ID = payload["id"].(string) 
 
 	jsonData, err := json.MarshalIndent(workflowComplete, "", "  ")
 	if err != nil {
@@ -208,6 +210,7 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 	} else {
 		fmt.Println("Workflow JSON formaté :", string(jsonData))
 	}
+
 
 	// 2. Save to database
 
@@ -259,6 +262,8 @@ func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+
+
 	// Validate using parser (dry run)
 	_, err := parser.ParseWorkflow(payload)
 	if err != nil {
@@ -277,6 +282,12 @@ func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request
 // validateWorkflowPayload performs basic payload structure validation
 func (s *Server) validateWorkflowPayload(payload map[string]interface{}) error {
 	// Check for required top-level fields
+
+	id, exists := payload["id"].(string)
+	if !exists || id == "" {
+		return fmt.Errorf("missing or invalid required field: id")
+	}
+
 	if _, exists := payload["nodes"]; !exists {
 		return fmt.Errorf("missing required field: nodes")
 	}
@@ -296,6 +307,9 @@ func (s *Server) validateWorkflowPayload(payload map[string]interface{}) error {
 	if _, ok := payload["edges"].([]interface{}); !ok {
 		return fmt.Errorf("edges must be an array")
 	}
+
+
+
 
 	return nil
 }
