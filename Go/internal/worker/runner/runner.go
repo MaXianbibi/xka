@@ -2,14 +2,14 @@ package runner
 
 import (
 	"XKA/internal/shared/builder"
+	"XKA/pkg/RedisClient"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
-
 )
-
 
 type NodeResponse struct {
 	NodeID     string `json:"nodeId"`
@@ -26,6 +26,7 @@ type NodeResponse struct {
 
 // WorkflowExecutionResult structure pour capturer le résultat global du workflow
 type WorkflowExecutionResult struct {
+
 	WorkflowID string                 `json:"workflowId"`
 	Status     string                 `json:"status"` // "success", "error", "running", "skipped"
 	StartedAt  int64                  `json:"startedAt"`
@@ -64,7 +65,7 @@ func (be *BaseExecutor) Execute(node *builder.Node) (*NodeResponse, error) {
 	}
 
 	start := time.Now()
-	
+
 	// Initialisation de la réponse avec les valeurs communes
 	resp := &NodeResponse{
 		NodeID:    node.ID,
@@ -78,7 +79,7 @@ func (be *BaseExecutor) Execute(node *builder.Node) (*NodeResponse, error) {
 
 	// Exécution de la logique métier
 	err := be.executeFunc(node, resp)
-	
+
 	// Gestion automatique des erreurs
 	if err != nil {
 		fullMsg := fmt.Sprintf("Node %s: %s", resp.NodeID, err.Error())
@@ -94,7 +95,7 @@ func (be *BaseExecutor) Execute(node *builder.Node) (*NodeResponse, error) {
 		resp.Status = "success"
 	}
 	resp.DurationMs = time.Since(start).Milliseconds()
-	
+
 	return resp, nil
 }
 
@@ -171,7 +172,7 @@ func executeHttpRequest(node *builder.Node, resp *NodeResponse) error {
 
 	// Configuration du client HTTP
 	client := &http.Client{Timeout: 30 * time.Second}
-	
+
 	// Création de la requête
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
@@ -202,10 +203,10 @@ func executeHttpRequest(node *builder.Node, resp *NodeResponse) error {
 	resp.SetResult("headers", httpResp.Header)
 	resp.SetResult("url", url)
 	resp.SetResult("method", method)
-	
+
 	resp.SetMeta("contentLength", len(body))
 	resp.SetMeta("contentType", httpResp.Header.Get("Content-Type"))
-	
+
 	resp.AddLog("HTTP request completed (status: %d)", httpResp.StatusCode)
 
 	return nil
@@ -322,10 +323,11 @@ func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) (*WorkflowExec
 			result.Nodes = append(result.Nodes, *nodeResponse)
 		}
 
+		result.publishResult("workflow_result")
+
 		// Ajouter les nodes suivantes à la queue
 		queue = append(queue, node.NextIDs...)
 	}
-
 	// Finaliser les résultats
 	result.Status = "success"
 	result.EndedAt = time.Now().Unix()
@@ -335,22 +337,52 @@ func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) (*WorkflowExec
 	return result, nil
 }
 
+
+func (wr *WorkflowExecutionResult) publishResult(list_name string) error {
+	client := RedisClient.GetClient()
+	if client == nil {
+		return fmt.Errorf("redis client not initialized")
+	}
+	wrJson, err := json.Marshal(wr)
+
+
+	
+	if err != nil {
+		return fmt.Errorf("failed to marshal workflow result: %v", err)
+	}
+	
+	_, err = client.LPush(list_name, string(wrJson))
+	if err != nil {
+		return fmt.Errorf("failed to publish workflow result to Redis: %v", err)
+	}
+	
+	// client.LTrim(list_name, 0, 49)
+	// client.Expire(list_name, 24*time.Hour)
+	
+	return nil
+}
+
+
+
 // executeNode exécute une node individuelle et retourne sa réponse
 func (wr *WorkflowRunner) executeNode(node *builder.Node) (*NodeResponse, error) {
 	if node == nil {
 		return nil, fmt.Errorf("node is nil")
 	}
-
+	
 	executor, exists := wr.executors[node.Type]
 	if !exists {
 		return nil, fmt.Errorf("no executor found for node type: %s", node.Type)
 	}
-	
+
 	return executor.Execute(node)
 }
 
 // Fonction helper pour utilisation simple - mise à jour pour retourner les résultats
 func Run(wf *builder.Workflow, runID string) (*WorkflowExecutionResult, error) {
 	runner := NewWorkflowRunner()
-	return runner.Run(wf, runID)
+	result, err := runner.Run(wf, runID)
+	result.publishResult("workflow_result")
+
+	return result, err
 }
