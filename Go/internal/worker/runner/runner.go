@@ -323,7 +323,7 @@ func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) (*WorkflowExec
 			result.Nodes = append(result.Nodes, *nodeResponse)
 		}
 
-		result.publishResult("workflow_result")
+		result.publishResult()
 
 		// Ajouter les nodes suivantes à la queue
 		queue = append(queue, node.NextIDs...)
@@ -338,7 +338,7 @@ func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) (*WorkflowExec
 }
 
 
-func (wr *WorkflowExecutionResult) publishResult(list_name string) error {
+func (wr *WorkflowExecutionResult) publishResult() error {
 	client := RedisClient.GetClient()
 	if client == nil {
 		return fmt.Errorf("redis client not initialized")
@@ -351,6 +351,7 @@ func (wr *WorkflowExecutionResult) publishResult(list_name string) error {
 		return fmt.Errorf("failed to marshal workflow result: %v", err)
 	}
 	
+	list_name := fmt.Sprintf("workflow:%s:results", wr.WorkflowID)
 	_, err = client.LPush(list_name, string(wrJson))
 	if err != nil {
 		return fmt.Errorf("failed to publish workflow result to Redis: %v", err)
@@ -382,7 +383,6 @@ func (wr *WorkflowRunner) executeNode(node *builder.Node) (*NodeResponse, error)
 func Run(wf *builder.Workflow, runID string) (*WorkflowExecutionResult, error) {
 	runner := NewWorkflowRunner()
 	result, err := runner.Run(wf, runID)
-	result.publishResult("workflow_result")
-
+	result.publishResult()
 	return result, err
 }
