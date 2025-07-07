@@ -306,3 +306,16 @@ func (c *Client) Ping() error {
 	return nil
 }
 
+func (c *Client) RGet(key string) (string, error) {
+    result, err := c.rdb.LIndex(c.ctx, key, -1).Result()
+    if err != nil {
+        if err == redis.Nil {
+            return "", fmt.Errorf("queue %s is empty", key)
+        }
+        logger.Log.Error("Erreur lors du LINDEX", 
+            zap.String("key", key), 
+            zap.Error(err))
+        return "", fmt.Errorf("failed to get last element from key %s: %w", key, err)
+    }
+    return result, nil
+}

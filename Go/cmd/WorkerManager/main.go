@@ -98,6 +98,7 @@ func (s *Server) setupRoutes() {
 		r.Route("/v1", func(r chi.Router) {
 			r.Post("/workflow", s.handleWorkflowSubmission)
 			r.Post("/workflow/validate", s.handleWorkflowValidation)
+			r.Get("/workflow/{id}", s.handleGetWorflow)
 		})
 	})
 
@@ -248,7 +249,7 @@ func (s *Server) processWorkflowAsync(parsedWorkflow *parser.Payload, payload ma
 		zap.String("request_id", requestID),
 		zap.String("workflow_id", workflowComplete.ID),
 	)
-	
+
 	// TODO: Queue for execution
 	// s.queueWorkflowForExecution(workflowComplete, requestID)
 }
@@ -270,14 +271,11 @@ func (s *Server) saveWorkflowToRedis(jsonData []byte, requestID string) error {
 func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request) {
 	// This endpoint can be used to validate workflows without processing them
 	// Useful for frontend validation or testing
-
 	var payload map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		s.writeErrorResponse(w, http.StatusBadRequest, "Invalid JSON payload", err.Error())
 		return
 	}
-
-
 
 	// Validate using parser (dry run)
 	_, err := parser.ParseWorkflow(payload)
@@ -291,6 +289,44 @@ func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request
 		Message: "Workflow validation passed",
 	}
 
+	s.writeJSONResponse(w, http.StatusOK, response)
+}
+
+
+func (s *Server) handleGetWorflow(w http.ResponseWriter, r *http.Request) {
+	// This endpoint can be used to retrieve a workflow by ID
+	// Useful for frontend display or debugging
+
+	
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		s.writeErrorResponse(w, http.StatusBadRequest, "Missing workflow ID", "ID parameter is required")
+		return
+	}
+
+	client := RedisClient.GetClient()
+	if client == nil {
+		s.writeErrorResponse(w, http.StatusInternalServerError, "Redis client not initialized", "Failed to connect to Redis")
+		return
+	}
+
+	// Retrieve workflow from Redis
+	listId := "workflow:" + id + ":results"
+	res, err := client.RGet(listId)
+
+	if err != nil {
+		s.writeErrorResponse(w, http.StatusNotFound, "Workflow not found", fmt.Sprintf("No workflow found with ID %s", id))
+		return
+	}
+
+	response := APIResponse{
+		Status:  "success",
+		Message: "Workflow retrieved successfully",
+		Data: map[string]interface{}{
+			"id":      id,
+			"results": res,
+		},
+	}
 	s.writeJSONResponse(w, http.StatusOK, response)
 }
 
