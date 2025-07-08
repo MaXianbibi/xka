@@ -98,7 +98,7 @@ func (s *Server) setupRoutes() {
 		r.Route("/v1", func(r chi.Router) {
 			r.Post("/workflow", s.handleWorkflowSubmission)
 			r.Post("/workflow/validate", s.handleWorkflowValidation)
-			r.Get("/workflow/{id}", s.handleGetWorflow)
+			r.Get("/workflow/{id}", s.handleGetWorkflow)
 		})
 	})
 
@@ -293,42 +293,40 @@ func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request
 }
 
 
-func (s *Server) handleGetWorflow(w http.ResponseWriter, r *http.Request) {
-	// This endpoint can be used to retrieve a workflow by ID
-	// Useful for frontend display or debugging
+func (s *Server) handleGetWorkflow(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    if id == "" {
+        s.writeErrorResponse(w, http.StatusBadRequest, "Missing workflow ID", "ID parameter is required")
+        return
+    }
 
-	
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		s.writeErrorResponse(w, http.StatusBadRequest, "Missing workflow ID", "ID parameter is required")
-		return
-	}
+    client := RedisClient.GetClient()
+    if client == nil {
+        s.writeErrorResponse(w, http.StatusInternalServerError, "Redis client not initialized", "Failed to connect to Redis")
+        return
+    }
 
-	client := RedisClient.GetClient()
-	if client == nil {
-		s.writeErrorResponse(w, http.StatusInternalServerError, "Redis client not initialized", "Failed to connect to Redis")
-		return
-	}
+    // Retrieve workflow from Redis
+    listId := "workflow:" + id + ":results"
+    res, err := client.GetFirstKey(listId)
+    if err != nil {
+        s.writeErrorResponse(w, http.StatusNotFound, "Workflow not found", fmt.Sprintf("No workflow found with ID %s", id))
+        return
+    }
 
-	// Retrieve workflow from Redis
-	listId := "workflow:" + id + ":results"
-	res, err := client.RGet(listId)
-
-	if err != nil {
-		s.writeErrorResponse(w, http.StatusNotFound, "Workflow not found", fmt.Sprintf("No workflow found with ID %s", id))
-		return
-	}
-
-	response := APIResponse{
-		Status:  "success",
-		Message: "Workflow retrieved successfully",
-		Data: map[string]interface{}{
-			"id":      id,
-			"results": res,
-		},
-	}
-	s.writeJSONResponse(w, http.StatusOK, response)
+    // 🎯 Structure clean - directement les données utiles
+    response := APIResponse{
+        Status:  "success",
+        Message: "Workflow retrieved successfully",
+        Data: map[string]interface{}{
+            "id":      id,
+            "results": res,
+        },
+    }
+    
+    s.writeJSONResponse(w, http.StatusOK, response)
 }
+
 
 // validateWorkflowPayload performs basic payload structure validation
 func (s *Server) validateWorkflowPayload(payload map[string]interface{}) error {

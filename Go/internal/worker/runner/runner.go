@@ -353,10 +353,15 @@ func (wr *WorkflowExecutionResult) publishResult() error {
 	
 	list_name := fmt.Sprintf("workflow:%s:results", wr.WorkflowID)
 	_, err = client.LPush(list_name, string(wrJson))
+	
 	if err != nil {
 		return fmt.Errorf("failed to publish workflow result to Redis: %v", err)
 	}
+	err = client.SetExpire(list_name, 30*time.Minute)
 	
+	if err != nil {
+		return fmt.Errorf("failed to set expiration for Redis list: %v", err)
+	}
 	// client.LTrim(list_name, 0, 49)
 	// client.Expire(list_name, 24*time.Hour)
 	

@@ -306,8 +306,11 @@ func (c *Client) Ping() error {
 	return nil
 }
 
-func (c *Client) RGet(key string) (string, error) {
-    result, err := c.rdb.LIndex(c.ctx, key, -1).Result()
+
+// RGet récupère le dernier élément d'une liste (pour récupérer le résultat d'un job)
+// Donc le plus anciens
+func (c *Client) GetFirstKey(key string) (string, error) {
+    result, err := c.rdb.LIndex(c.ctx, key, 0).Result()
     if err != nil {
         if err == redis.Nil {
             return "", fmt.Errorf("queue %s is empty", key)
@@ -319,3 +322,5 @@ func (c *Client) RGet(key string) (string, error) {
     }
     return result, nil
 }
+
+

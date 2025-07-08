@@ -89,14 +89,53 @@ export async function saveWorkflow(formData: FormData): Promise<SaveWorkflowResu
 
 export async function getWorflow(id: string): Promise<SaveWorkflowResult> {
   try {
+    // 🛡️ Validation de l'ID
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      return {
+        success: false,
+        error: 'Invalid workflow ID provided'
+      };
+    }
+
     const response = await httpClient.get(`/workflow/${id}`);
 
     if (response.status === 200) {
-      console.log('✅ Workflow retrieved successfully:', response.data);
+      // 🛡️ Vérification de la structure de réponse
+      if (!response.data) {
+        return {
+          success: false,
+          error: 'No data received from server'
+        };
+      }
+
+      if (!response.data.data) {
+        return {
+          success: false,
+          error: 'Invalid response structure: missing data field'
+        };
+      }
+
+      if (!response.data.data.results) {
+        return {
+          success: false,
+          error: 'Invalid response structure: missing results field'
+        };
+      }
+
+      // 🛡️ Validation que results est un JSON valide
+      try {
+        JSON.parse(response.data.data.results);
+      } catch (parseError) {
+        return {
+          success: false,
+          error: 'Invalid JSON in results field'
+        };
+      }
+
       return { 
         success: true, 
-        data: response.data, 
-        id 
+        id: id, 
+        data: response.data.data.results,
       };
     } else {
       console.error('❌ Unexpected status:', response.status, response.data);
@@ -107,9 +146,20 @@ export async function getWorflow(id: string): Promise<SaveWorkflowResult> {
     }
   } catch (error) {
     console.error('❌ Error retrieving workflow:', error);
+    
+    // 🛡️ Gestion d'erreur plus détaillée
+    if (error instanceof Error) {
+      return { 
+        success: false, 
+        error: `Failed to retrieve workflow: ${error.message}` 
+      };
+    }
+    
     return { 
       success: false, 
-      error: 'Failed to retrieve workflow' 
+      error: 'Failed to retrieve workflow: Unknown error' 
     };
   }
 }
+
+

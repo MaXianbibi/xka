@@ -109,11 +109,17 @@ export default function Page() {
         console.log('✅ Workflow saved with ID:', id);
     };
 
-    // 🎯 Fonction pour arrêter le polling
+    // 🎯 Fonction pour arrêter le polling MANUELLEMENT
     const handleStopPolling = () => {
         setShouldPoll(false);
+        console.log('🛑 Polling stopped manually');
+    };
+
+    // 🎯 Fonction pour nettoyer complètement (nouveau workflow)
+    const handleClearWorkflow = () => {
+        setShouldPoll(false);
         setWorkflowId(null);
-        console.log('🛑 Polling stopped');
+        console.log('🗑️ Workflow cleared');
     };
 
     // 🎯 Fonction pour refresh manuel
@@ -121,11 +127,11 @@ export default function Page() {
         mutate(); // Force un refresh
     };
 
-    // 🎯 Effet pour arrêter le polling quand terminé
+    // 🎯 Effet pour arrêter SEULEMENT le polling quand terminé (garde l'état visible)
     React.useEffect(() => {
         if (isCompleted || isFailed) {
             console.log('🎯 Workflow finished:', workflowStatus?.status);
-            setShouldPoll(false);
+            setShouldPoll(false); // ⚠️ Arrête le polling MAIS garde workflowStatus et workflowId
         }
     }, [isCompleted, isFailed, workflowStatus]);
 
@@ -164,13 +170,13 @@ export default function Page() {
                             <MdScience size={20} />
                         </button>
 
-                        {/* 🎯 Bouton Stop (si en cours) */}
+                        {/* 🎯 Bouton Stop (si en cours de polling) */}
                         {shouldPoll && (
                             <button
                                 onClick={handleStopPolling}
                                 className="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg shadow hover:shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center justify-center gap-2"
                             >
-                                Stop
+                                Stop Polling
                                 <MdStop size={20} />
                             </button>
                         )}
@@ -184,6 +190,16 @@ export default function Page() {
                                 <MdRefresh size={20} />
                             </button>
                         )}
+
+                        {/* 🎯 Bouton Clear (pour nettoyer l'état) */}
+                        {workflowId && !shouldPoll && (
+                            <button
+                                onClick={handleClearWorkflow}
+                                className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+                            >
+                                Clear
+                            </button>
+                        )}
                     </div>
                 </Panel>
 
@@ -195,7 +211,7 @@ export default function Page() {
                             
                             {/* 🎯 ID du workflow */}
                             <div className="text-sm text-gray-300 mb-2">
-                                <span className="font-medium">ID:</span> {workflowStatus.id}
+                                <span className="font-medium">ID:</span> {workflowStatus.workflowId}
                             </div>
 
                             {/* 🎯 Statut avec couleur */}
@@ -203,13 +219,17 @@ export default function Page() {
                                 <span className="font-medium text-white">Status:</span>
                                 <span className={`
                                     px-2 py-1 rounded text-xs font-medium
-                                    ${workflowStatus.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                                    ${workflowStatus.status === 'running' ? 'bg-blue-100 text-blue-800' : ''}
-                                    ${workflowStatus.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-                                    ${workflowStatus.status === 'failed' ? 'bg-red-100 text-red-800' : ''}
+                                    ${workflowStatus.status === 'running' ? 'bg-yellow-100 text-yellow-800' : ''}
+                                    ${workflowStatus.status === 'success' ? 'bg-green-100 text-green-800' : ''}
+                                    ${workflowStatus.status === 'error' ? 'bg-red-100 text-red-800' : ''}
                                 `}>
                                     {workflowStatus.status.toUpperCase()}
                                 </span>
+                            </div>
+
+                            {/* 🎯 Durée d'exécution */}
+                            <div className="text-sm text-gray-300 mb-2">
+                                <span className="font-medium">Duration:</span> {workflowStatus.durationMs}ms
                             </div>
 
                             {/* 🎯 Barre de progression */}
@@ -240,6 +260,14 @@ export default function Page() {
                                 <div className="text-green-400 text-xs mt-2 flex items-center gap-1">
                                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                     Polling active
+                                </div>
+                            )}
+
+                            {/* 🎯 Indicateur statique quand terminé */}
+                            {!shouldPoll && (isCompleted || isFailed) && (
+                                <div className="text-gray-400 text-xs mt-2 flex items-center gap-1">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                    Workflow finished
                                 </div>
                             )}
                         </div>
