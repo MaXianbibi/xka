@@ -2,6 +2,8 @@ import { memo, useCallback } from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
 import { MdAccessTime } from 'react-icons/md';
 
+import WorkflowNodeWrapper from './WrapperNode';
+
 function WaitingNode({ id, data, isConnectable }: NodeProps) {
   const { setNodes } = useReactFlow();
 
@@ -14,7 +16,7 @@ function WaitingNode({ id, data, isConnectable }: NodeProps) {
   }, [id, setNodes]);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 text-white rounded-2xl p-4 w-80 text-sm font-sans transition-all duration-200 hover:shadow-[0_8px_24px_rgba(120,120,255,0.1)]">
+    <WorkflowNodeWrapper data={data}>
       <Handle
         type="target"
         position={Position.Left}
@@ -45,7 +47,7 @@ function WaitingNode({ id, data, isConnectable }: NodeProps) {
         isConnectable={isConnectable}
         style={{ background: '#6c63ff' }}
       />
-    </div>
+    </WorkflowNodeWrapper>
   );
 }
 

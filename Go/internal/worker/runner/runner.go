@@ -36,6 +36,7 @@ type WorkflowExecutionResult struct {
 	GlobalLogs []string               `json:"logs"`
 	Error      *string                `json:"error,omitempty"`
 	Meta       map[string]interface{} `json:"meta,omitempty"`
+	NumbreOfNodes int                 `json:"numberOfNodes"` 
 }
 
 // NodeExecutor interface pour les exécuteurs de nodes
@@ -242,44 +243,45 @@ func executeWaiting(node *builder.Node, resp *NodeResponse) error {
 	return nil
 }
 
+func buildWorkflowExecutionResult(wf *builder.Workflow, runID string, status string, errorMsg string) *WorkflowExecutionResult {
+	result := &WorkflowExecutionResult{
+		WorkflowID: wf.ID,
+		Status:     status,
+		StartedAt:  time.Now().Unix(),
+		Nodes:      []NodeResponse{},
+		GlobalLogs: []string{},
+		Meta:       make(map[string]interface{}),
+		NumbreOfNodes: len(wf.NodeMap),
+	}
+	if errorMsg != "" {
+		result.Error = &errorMsg
+		result.Status = "error"
+		result.EndedAt = time.Now().Unix()
+		result.DurationMs = time.Since(time.Unix(result.StartedAt, 0)).Milliseconds()
+	} else {
+		result.EndedAt = time.Now().Unix()
+		result.DurationMs = time.Since(time.Unix(result.StartedAt, 0)).Milliseconds()
+	}
+	return result
+}
+
 // Run exécute un workflow avec une seule node de départ et retourne les résultats
 func (wr *WorkflowRunner) Run(wf *builder.Workflow, runID string) (*WorkflowExecutionResult, error) {
 	startTime := time.Now()
 
 	if wf == nil {
-		result := &WorkflowExecutionResult{
-			Status:     "error",
-			StartedAt:  startTime.Unix(),
-			Nodes:      []NodeResponse{},
-			GlobalLogs: []string{},
-			Meta:       make(map[string]interface{}),
-		}
 		errorMsg := "workflow is nil"
-		result.Error = &errorMsg
-		result.EndedAt = time.Now().Unix()
-		result.DurationMs = time.Since(startTime).Milliseconds()
+		result := buildWorkflowExecutionResult(wf, runID, "error", errorMsg)
 		return result, fmt.Errorf("%s", errorMsg)
 	}
-
-	result := &WorkflowExecutionResult{
-		WorkflowID: wf.ID,
-		Status:     "running",
-		StartedAt:  startTime.Unix(),
-		Nodes:      []NodeResponse{},
-		GlobalLogs: []string{},
-		Meta:       make(map[string]interface{}),
-	}
-
 	if len(wf.StartNodeIDs) == 0 {
-		errorMsg := "no start nodes found"
-		result.Status = "error"
-		result.Error = &errorMsg
-		result.EndedAt = time.Now().Unix()
-		result.DurationMs = time.Since(startTime).Milliseconds()
+		errorMsg := "workflow has no start nodes"
+		result := buildWorkflowExecutionResult(wf, runID, "error", errorMsg)
 		return result, fmt.Errorf("%s", errorMsg)
 	}
 
-	// Prendre seulement la première node de départ
+	result := buildWorkflowExecutionResult(wf, runID, "running", "")
+
 	firstNodeID := wf.StartNodeIDs[0]
 	result.GlobalLogs = append(result.GlobalLogs, fmt.Sprintf("Starting workflow execution with node: %s", firstNodeID))
 
@@ -345,8 +347,6 @@ func (wr *WorkflowExecutionResult) publishResult() error {
 	}
 	wrJson, err := json.Marshal(wr)
 
-
-	
 	if err != nil {
 		return fmt.Errorf("failed to marshal workflow result: %v", err)
 	}

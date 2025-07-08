@@ -42,5 +42,6 @@ export interface WorkflowExecutionResult {
   logs: string[];        // GlobalLogs → logs (renommé)
   error?: string;        // *string → string optionnel
   meta?: Record<string, any>;  // map[string]interface{} → Record<string, any>
+  numberOfNodes: number; // Nombre total de nodes dans le workflow
 }
 
