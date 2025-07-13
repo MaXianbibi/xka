@@ -128,7 +128,7 @@ export async function getWorflow(id: string): Promise<SaveWorkflowResult> {
       } catch (parseError) {
         return {
           success: false,
-          error: 'Invalid JSON in results field'
+          error: 'Invalid JSON in results field - ' + (parseError instanceof Error ? parseError.message : 'Unknown error')
         };
       }
 

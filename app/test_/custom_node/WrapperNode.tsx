@@ -1,63 +1,37 @@
-// components/WorkflowNodeWrapper.tsx
 import React, { ReactNode } from 'react';
 
-type ExecutionStatus = 'pending' | 'running' | 'success' | 'error';
-
-interface WorkflowNodeData {
-    executionStatus?: ExecutionStatus;
-    executionDuration?: number;
-    [key: string]: any; // Pour les autres props spécifiques aux nodes
-}
-
 interface WorkflowNodeWrapperProps {
-    data: WorkflowNodeData;
+    data: any;
     children: ReactNode;
 }
 
-const WorkflowNodeWrapper: React.FC<WorkflowNodeWrapperProps> = ({ data, children }) => {
-    const status: ExecutionStatus = data.executionStatus || 'pending';
-    const duration = data.executionDuration;
-    
-    // Couleurs selon le statut
-    const borderColorMap: Record<ExecutionStatus, string> = {
-        pending: 'border-gray-400',
-        running: 'border-yellow-400',
-        success: 'border-green-400', 
-        error: 'border-red-400'
+export default function WorkflowNodeWrapper({ data, children }: WorkflowNodeWrapperProps) {
+    const getStatusColor = () => {
+        switch (data?.executionStatus) {
+            case 'running': return 'border-yellow-400 shadow-yellow-400/20';
+            case 'success': return 'border-green-400 shadow-green-400/20';
+            case 'error': return 'border-red-400 shadow-red-400/20';
+            default: return 'border-zinc-600/50 shadow-lg';
+        }
     };
-    
-    const borderColor = borderColorMap[status];
-    
-    // Icones selon le statut
-    const iconMap: Record<ExecutionStatus, string | null> = {
-        pending: null,
-        running: '⏳',
-        success: '✅',
-        error: '❌'
-    };
-    
-    const icon = iconMap[status];
-    
+
     return (
-        <div className={`relative bg-gray-800 rounded-lg border-2 ${borderColor} p-4`}>
-            {/* Icone de statut */}
-            {icon && (
-                <div className="absolute -top-2 -right-2 text-lg">
-                    {icon}
-                </div>
-            )}
-            
-            {/* Contenu du node */}
+        <div className={`
+            relative 
+            bg-gradient-to-br from-zinc-900 to-zinc-800 
+            rounded-xl 
+            border-2 
+            ${getStatusColor()}
+            p-4 
+            w-80 
+            text-white 
+            shadow-xl
+            transition-all 
+            duration-300 
+            hover:shadow-2xl
+            hover:brightness-110
+        `}>
             {children}
-            
-            {/* Durée */}
-            {duration !== undefined && (
-                <div className="absolute bottom-1 right-1 text-xs text-gray-400">
-                    {duration}ms
-                </div>
-            )}
         </div>
     );
-};
-
-export default WorkflowNodeWrapper;
+}

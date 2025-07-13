@@ -1,10 +1,7 @@
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getSimpleBezierPath,
   getSmoothStepPath,
-  getStraightPath,
-  MarkerType,
   useReactFlow,
   
 } from '@xyflow/react';
@@ -28,7 +25,7 @@ export default function CustomEdge({ id, sourceX, sourceY, targetX, targetY, ...
     targetY,
   });
  
-  const { label, labelStyle, markerStart, markerEnd, interactionWidth } = props;
+  const { markerEnd } = props;
 
 
   return (
