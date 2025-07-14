@@ -1,4 +1,4 @@
-name: Docker Compose Build & Push CI
+name: Docker Compose Build, Push & Deploy
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: ["master"]
 
-# Éviter les builds redondants
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,7 +14,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +24,6 @@ jobs:
         with:
           driver-opts: network=host
 
-      # Ne se connecter que pour les push vers master (pas pour les PRs)
       - name: Log in to DockerHub
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: docker/login-action@v3
@@ -36,7 +34,6 @@ jobs:
       - name: Create .env file
         run: touch .env
 
-      # Générer les métadonnées pour le tagging
       - name: Extract metadata
         id: meta
         run: |
@@ -49,28 +46,39 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
-          # Variables pour le tagging
           IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
           BUILD_DATE: ${{ steps.meta.outputs.date }}
 
-      # Test rapide des images avant push
       - name: Test images
         run: |
           echo "Testing built images..."
           docker compose -f docker-compose.yml config --quiet
-          # Ajouter ici d'autres tests si nécessaire
-          # docker compose -f docker-compose.yml run --rm service_name test
 
-      # Ne push que sur master, pas sur les PRs
       - name: Push images to DockerHub
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: docker compose -f docker-compose.yml push
         env:
           IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
 
-      # Nettoyage automatique
       - name: Clean up Docker resources
         if: always()
         run: |
           docker compose -f docker-compose.yml down --volumes --remove-orphans || true
           docker system prune -f --volumes || true
+
+  deploy:
+    # Déploie seulement sur push direct sur master, pas sur PR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déploiement sur la VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/justin/dev/XKA/xka
+            docker compose pull
+            docker compose up -d --remove-orphans
