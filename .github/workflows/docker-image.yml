@@ -32,6 +32,11 @@ jobs:
           echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
           echo "sha_short=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
+      - name: Create .env file for CI
+        run: |
+          touch .env
+          echo "# CI environment file" > .env
+
       - name: Build images via compose
         env:
           DOCKER_BUILDKIT: 1
@@ -40,6 +45,8 @@ jobs:
         run: docker compose build --parallel
 
       - name: Test images
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
         run: |
           echo "Testing built images..."
           docker compose config --quiet
@@ -75,7 +82,7 @@ jobs:
 
       - name: Read image tag
         id: get_tag
-        run: echo "tag=$(cat .github/image_tag.txt)" >> $GITHUB_OUTPUT
+        run: echo "tag=$(cat image_tag.txt)" >> $GITHUB_OUTPUT
 
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1.0.3
