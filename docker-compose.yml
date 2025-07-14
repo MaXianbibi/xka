@@ -3,6 +3,7 @@ services:
     build:
       context: ./Go
       dockerfile: ./cmd/WorkerManager/Dockerfile
+    image: jmorneau/xka-worker-manager:latest
     ports:
       - "8080:8080"
     env_file:
@@ -22,6 +23,7 @@ services:
     build:
       context: ./Go
       dockerfile: ./cmd/worker/Dockerfile
+    image: jmorneau/xka-worker:latest
     env_file:
       - .env  
     environment:
