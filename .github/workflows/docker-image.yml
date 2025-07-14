@@ -105,8 +105,14 @@ jobs:
             
             docker compose down
             
-            IMAGE_TAG=$IMAGE_TAG docker compose pull
+            docker rmi xka-worker-manager xka-worker || true
+            docker rmi jmorneau/xka-worker-manager:$IMAGE_TAG || true
+            docker rmi jmorneau/xka-worker:$IMAGE_TAG || true
+            
+            IMAGE_TAG=$IMAGE_TAG docker compose pull --ignore-pull-failures
             
             IMAGE_TAG=$IMAGE_TAG docker compose up -d --remove-orphans
             
             IMAGE_TAG=$IMAGE_TAG docker compose ps
+            echo "Images utilisées:"
+            docker images | grep -E "(xka-worker|jmorneau/xka-worker)"
