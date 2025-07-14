@@ -440,18 +440,24 @@ func main() {
 	logger.Init()
 	defer logger.Log.Sync() // Ensure logs are flushed
 
-	envPath := filepath.Join("..", "..", "..", ".env")
-	err := godotenv.Load(envPath)
-	if err != nil {
-		logger.Log.Warn("No .env file found, using default environment variables",
-			zap.String("path", envPath),
-			zap.Error(err),
-		)
-	} else {
-		logger.Log.Info(".env file loaded successfully",
-			zap.String("path", envPath),
-		)
+	env := os.Getenv("ENV") // "production", "dev", "local", "test"...
+	
+	if env != "production" {
+		envPath := filepath.Join(".env")
+		err := godotenv.Load(".env")
+		if err != nil {
+			logger.Log.Warn("No .env file found, using default environment variables",
+				zap.String("path", envPath),
+				zap.Error(err),
+			)
+		} else {
+			logger.Log.Info(".env file loaded successfully",
+				zap.String("path", envPath),
+			)
+		}
 	}
+
+	
 
 	client := RedisClient.GetClient()
 	if client == nil {

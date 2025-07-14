@@ -34,8 +34,21 @@ func main() {
 	logger.Log.Info("Starting worker")
 
 	// Load environment variables
-	if err := loadEnv(); err != nil {
-		logger.Log.Warn("Failed to load .env file", zap.Error(err))
+	env := os.Getenv("ENV") // "production", "dev", "local", "test"...
+	
+	if env != "production" {
+		envPath := filepath.Join(".env")
+		err := godotenv.Load(".env")
+		if err != nil {
+			logger.Log.Warn("No .env file found, using default environment variables",
+				zap.String("path", envPath),
+				zap.Error(err),
+			)
+		} else {
+			logger.Log.Info(".env file loaded successfully",
+				zap.String("path", envPath),
+			)
+		}
 	}
 
 	// Initialize Redis client with retry
@@ -56,11 +69,6 @@ func main() {
 	runWorker(ctx, client)
 
 	logger.Log.Info("Worker stopped gracefully")
-}
-
-func loadEnv() error {
-	envPath := filepath.Join("..", "..", "..", ".env")
-	return godotenv.Load(envPath)
 }
 
 func initRedisWithRetry() (*RedisClient.Client, error) {
