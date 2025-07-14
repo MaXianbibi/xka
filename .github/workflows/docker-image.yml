@@ -55,13 +55,14 @@ jobs:
           docker compose down --volumes --remove-orphans || true
           docker system prune -f --volumes || true
 
+      - name: Write image tag for deploy job
+        run: echo "${{ steps.meta.outputs.sha_short }}" > .github/image_tag.txt
+
       - name: Upload image tag for deploy job
         uses: actions/upload-artifact@v4
         with:
           name: image_tag
-          path: |
-            .github/image_tag.txt
-        run: echo "${{ steps.meta.outputs.sha_short }}" > .github/image_tag.txt
+          path: .github/image_tag.txt
 
   deploy:
     needs: build-and-push
