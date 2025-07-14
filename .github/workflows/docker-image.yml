@@ -3,8 +3,6 @@ name: Docker Compose Build, Push & Deploy
 on:
   push:
     branches: ["master"]
-  pull_request:
-    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,58 +19,64 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
 
       - name: Log in to DockerHub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create .env file
-        run: touch .env
 
       - name: Extract metadata
         id: meta
         run: |
           echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
           echo "sha_short=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-          echo "ref_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
 
       - name: Build images via compose
-        run: docker compose -f docker-compose.yml build --parallel
         env:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
           IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
-          BUILD_DATE: ${{ steps.meta.outputs.date }}
+        run: docker compose build --parallel
 
       - name: Test images
         run: |
           echo "Testing built images..."
-          docker compose -f docker-compose.yml config --quiet
+          docker compose config --quiet
 
       - name: Push images to DockerHub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: docker compose -f docker-compose.yml push
         env:
           IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
+        run: docker compose push
 
       - name: Clean up Docker resources
         if: always()
         run: |
-          docker compose -f docker-compose.yml down --volumes --remove-orphans || true
+          docker compose down --volumes --remove-orphans || true
           docker system prune -f --volumes || true
 
+      - name: Upload image tag for deploy job
+        uses: actions/upload-artifact@v4
+        with:
+          name: image_tag
+          path: |
+            .github/image_tag.txt
+        run: echo "${{ steps.meta.outputs.sha_short }}" > .github/image_tag.txt
+
   deploy:
-    # Déploie seulement sur push direct sur master, pas sur PR
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Déploiement sur la VM
+      - name: Download image tag
+        uses: actions/download-artifact@v4
+        with:
+          name: image_tag
+
+      - name: Read image tag
+        id: get_tag
+        run: echo "tag=$(cat .github/image_tag.txt)" >> $GITHUB_OUTPUT
+
+      - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VM_HOST }}
@@ -80,5 +84,6 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd /home/justin/dev/XKA/xka
+            export IMAGE_TAG=${{ steps.get_tag.outputs.tag }}
             docker compose pull
             docker compose up -d --remove-orphans

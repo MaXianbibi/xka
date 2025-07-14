@@ -3,7 +3,7 @@ services:
     build:
       context: ./Go
       dockerfile: ./cmd/WorkerManager/Dockerfile
-    image: jmorneau/xka-worker-manager:latest
+    image: jmorneau/xka-worker-manager:${IMAGE_TAG}
     ports:
       - "8080:8080"
     env_file:
@@ -23,7 +23,7 @@ services:
     build:
       context: ./Go
       dockerfile: ./cmd/worker/Dockerfile
-    image: jmorneau/xka-worker:latest
+    image: jmorneau/xka-worker:${IMAGE_TAG}
     env_file:
       - .env  
     environment:
@@ -32,11 +32,11 @@ services:
       - redis
 
   redis:
-    image: redis:7-alpine           
+    image: redis:7-alpine
     ports:
-      - "6379:6379"                 
+      - "6379:6379"
     volumes:
-      - redis-data:/data            
+      - redis-data:/data
 
 volumes:
   redis-data:
