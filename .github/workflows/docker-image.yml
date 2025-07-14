@@ -56,6 +56,14 @@ jobs:
           IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
         run: docker compose push
 
+      - name: Verify images are pushed
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.sha_short }}
+        run: |
+          echo "Verifying pushed images..."
+          docker manifest inspect jmorneau/xka-worker-manager:$IMAGE_TAG
+          docker manifest inspect jmorneau/xka-worker:$IMAGE_TAG
+
       - name: Clean up Docker resources
         if: always()
         run: |
@@ -92,6 +100,13 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd /home/justin/dev/XKA/xka
-            export IMAGE_TAG=${{ steps.get_tag.outputs.tag }}
-            docker compose pull
-            docker compose up -d --remove-orphans
+            IMAGE_TAG=${{ steps.get_tag.outputs.tag }}
+            echo "Deploying with IMAGE_TAG: $IMAGE_TAG"
+            
+            docker compose down
+            
+            IMAGE_TAG=$IMAGE_TAG docker compose pull
+            
+            IMAGE_TAG=$IMAGE_TAG docker compose up -d --remove-orphans
+            
+            IMAGE_TAG=$IMAGE_TAG docker compose ps
