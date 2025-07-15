@@ -115,7 +115,7 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 		Status:  "success",
 		Message: "Worker Manager API Server",
 		Data: map[string]interface{}{
-			"version":   "1.0.2",
+			"version":   "1.0.5",
 			"endpoints": []string{"/api/v1/workflow", "/health", "/version"},
 			"docs":      "Visit /api/v1/workflow for workflow processing",
 			"contact":   "For support, contact : https://github.com/MaXianbibi",
