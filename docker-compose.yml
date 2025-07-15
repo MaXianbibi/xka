@@ -1,8 +1,5 @@
 services:
   worker-manager:
-    build:
-      context: ./Go
-      dockerfile: ./cmd/WorkerManager/Dockerfile
     image: jmorneau/xka-worker-manager:${IMAGE_TAG:-latest}
     ports:
       - "8080:8080"
@@ -20,9 +17,6 @@ services:
       start_period: 5s
 
   worker:
-    build:
-      context: ./Go
-      dockerfile: ./cmd/worker/Dockerfile
     image: jmorneau/xka-worker:${IMAGE_TAG:-latest}
     env_file:
       - .env
