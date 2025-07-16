@@ -34,12 +34,7 @@ function ManualStartNode({  data, isConnectable }: NodeProps) {
         </div>
       )}
 
-      {/* Durée d'exécution qui dépasse */}
-      {executionDuration && (
-        <div className="absolute -bottom-2 -left-2 bg-zinc-800 border border-zinc-600 rounded-full px-2 py-1 text-xs text-zinc-300 font-medium shadow-lg">
-          {executionDuration}ms
-        </div>
-      )}
+      
 
       <Handle
         type="source"

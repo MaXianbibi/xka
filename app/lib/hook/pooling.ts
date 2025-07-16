@@ -34,7 +34,7 @@ export function useWorkflowPolling(workflowId: string | null, shouldPoll: boolea
         const workflowData = JSON.parse(result.data) as WorkflowExecutionResult;
         console.log('📊 Status:', workflowData.status, 'Progress:', calculateProgress(workflowData) + '%');
 
-        console.log(workflowData);
+        console.log("DATA : ", workflowData);
         return workflowData;
       } catch (parseError) {
         console.error('❌ JSON Parse Error:', parseError);
