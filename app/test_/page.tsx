@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import {
     ReactFlow,
     MiniMap,
@@ -29,8 +29,20 @@ import { WorkflowStatusPanel } from './components/WorkflowStatusPanel';
 import { BaseNodeData } from "@/app/lib/types/types";
 import { initialEdges, initialNodes, scrollbarStyles, nodeTypes } from "@/app/lib/Constants/constants";
 
+// Constantes pour éviter les recréations
+const ARROW_MARKER = {
+    type: MarkerType.ArrowClosed,
+    color: 'white',
+    strokeWidth: 1.5,
+};
+
+const containerStyle = {
+    width: '100%',
+    height: '100vh',
+};
+
 export default function WorkflowPage() {
-    // State management
+    // État initial
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
@@ -48,33 +60,30 @@ export default function WorkflowPage() {
         handleClearWorkflow
     } = useWorkflowExecution();
 
-    const { workflowStatus, isLoading, error, mutate, isRunning, isCompleted, isFailed, progress } = useWorkflowPolling(workflowId, shouldPoll);
-    const { filteredLogs, availableNodes } = useWorkflowLogs(workflowStatus ?? null, logFilter);
+    const { workflowStatus, isLoading, error, mutate, isRunning, isCompleted, isFailed, progress } = useWorkflowPolling(
+        workflowId,
+        shouldPoll
+    );
 
-    // Event handlers
+    const { filteredLogs, availableNodes } = useWorkflowLogs(workflowStatus, logFilter);
+
+    // Memoization des valeurs dérivées
+    const workflowStatusMemo = useMemo(() => workflowStatus, [workflowStatus]);
+    const logsMemo = useMemo(() => ({ filteredLogs, availableNodes }), [filteredLogs, availableNodes]);
+
+    // Gestion des connexions
     const onConnect = useCallback((connection: Connection) => {
-        setEdges((eds) =>
-            addEdge(
-                {
-                    ...connection,
-                    markerEnd: {
-                        type: MarkerType.ArrowClosed,
-                        color: 'white',
-                        strokeWidth: 1.5,
-                    },
-                },
-                eds
-            )
-        );
+        setEdges((eds) => addEdge({ ...connection, markerEnd: ARROW_MARKER }, eds));
     }, [setEdges]);
 
+    // Gestion de l'exécution
     const handleRunWorkflow = useCallback(() => {
         executeWorkflow(rfInstance);
     }, [executeWorkflow, rfInstance]);
 
     const handleRefresh = useCallback(() => mutate(), [mutate]);
 
-    // Effects
+    // Effets
     useEffect(() => {
         if (isCompleted || isFailed) {
             setShouldPoll(false);
@@ -82,27 +91,26 @@ export default function WorkflowPage() {
     }, [isCompleted, isFailed, setShouldPoll]);
 
     useEffect(() => {
-        if (workflowStatus) {
-            setNodes(currentNodes =>
-                currentNodes.map(node => {
-                    const executionData = workflowStatus.nodes?.find(n => n.nodeId === node.id);
+        if (!workflowStatusMemo) return;
 
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            data: executionData,
-                            executionStatus: executionData?.status || 'pending',
-                            executionDuration: executionData?.durationMs,
-                        } as BaseNodeData
-                    };
-                })
-            );
-        }
-    }, [workflowStatus, setNodes]);
+        setNodes(currentNodes =>
+            currentNodes.map(node => {
+                const executionData = workflowStatusMemo.nodes?.find(n => n.nodeId === node.id);
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        data: executionData,
+                        executionStatus: executionData?.status || 'pending',
+                        executionDuration: executionData?.durationMs,
+                    } as BaseNodeData
+                };
+            })
+        );
+    }, [workflowStatusMemo, setNodes]);
 
     return (
-        <div style={{ width: '100%', height: '100vh' }}>
+        <div style={containerStyle}>
             <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
             <ReactFlow
                 nodes={nodes}
@@ -110,7 +118,7 @@ export default function WorkflowPage() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                colorMode='dark'
+                colorMode="dark"
                 fitView
                 nodeTypes={nodeTypes}
                 onInit={setRfInstance}
@@ -126,7 +134,7 @@ export default function WorkflowPage() {
                 />
 
                 <WorkflowStatusPanel
-                    workflowStatus={workflowStatus}
+                    workflowStatus={workflowStatusMemo}
                     error={error}
                     isExpanded={isExpanded}
                     setIsExpanded={setIsExpanded}
@@ -138,8 +146,7 @@ export default function WorkflowPage() {
                     isCompleted={isCompleted}
                     isFailed={isFailed}
                     progress={progress}
-                    filteredLogs={filteredLogs}
-                    availableNodes={availableNodes}
+                    {...logsMemo}
                 />
 
                 <Controls />
