@@ -21,7 +21,7 @@ interface ExpandedDetailsProps {
 }
 
 // Constantes de style
-const PANEL_STYLE = "bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:brightness-110";
+const PANEL_STYLE = "bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl shadow-lg transition-all duration-300";
 const HEADER_STYLE = "flex items-center justify-between mb-4";
 const TITLE_STYLE = "text-white font-semibold text-lg";
 const STATUS_INDICATOR_STYLE = "flex items-center gap-3";

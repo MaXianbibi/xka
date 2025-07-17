@@ -345,10 +345,9 @@ const WorkflowNodeWrapper = memo(function WorkflowNodeWrapper({
     ${statusConfig.shadow}
     ${isExpanded ? 'w-[500px]' : 'w-80'}
     text-white
-    shadow-xl
+    shadow-lg
     transition-all
     duration-300
-    hover:shadow-2xl
     hover:brightness-110
   `, [statusConfig, isExpanded]);
 
