@@ -45,3 +45,63 @@ export interface WorkflowExecutionResult {
   numberOfNodes: number; // Nombre total de nodes dans le workflow
 }
 
+
+
+export interface BaseNodeData {
+  executionStatus?: 'pending' | 'running' | 'success' | 'error';
+  executionDuration?: number;
+  [key: string]: any;
+}
+
+export interface LogItem {
+  type: 'workflow' | 'node';
+  nodeId?: string;
+  log: string;
+  index: number;
+}
+
+export interface WorkflowNodeResult {
+  nodeId: string;
+  logs?: string[];
+  status?: string;
+  durationMs?: number;
+}
+
+export interface ControlPanelProps {
+  onRunWorkflow: () => void;
+  onStopPolling: () => void;
+  onRefresh: () => void;
+  onClearWorkflow: () => void;
+  isRunning: boolean;
+  isLoading: boolean;
+  shouldPoll: boolean;
+  workflowId: string | null;
+}
+
+export interface StatusPanelProps {
+  workflowStatus: WorkflowExecutionResult | null | undefined;
+  error: Error | null;
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
+  activeTab: 'status' | 'logs';
+  setActiveTab: (tab: 'status' | 'logs') => void;
+  logFilter: string;
+  setLogFilter: (filter: string) => void;
+  shouldPoll: boolean;
+  isCompleted: boolean;
+  isFailed: boolean;
+  progress: number;
+  filteredLogs: LogItem[];
+  availableNodes: WorkflowNodeResult[];
+}
+
+export interface WorkflowControlsProps {
+  onRunWorkflow: () => void;
+  onStopPolling: () => void;
+  onRefresh: () => void;
+  onClearWorkflow: () => void;
+  isRunning: boolean;
+  isLoading: boolean;
+  shouldPoll: boolean;
+  workflowId: string | null;
+}
