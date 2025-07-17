@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "README Auto-Update",
+  "description": "Monitors project files for significant changes and updates the README.md to reflect new features, architectural changes, or important modifications",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.tsx",
+      "app/**/*.ts",
+      "Go/**/*.go",
+      "package.json",
+      "go.mod",
+      "docker-compose.yml",
+      "next.config.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A commit has been made to the XKA project. Review the changed files and determine if the README.md needs to be updated to reflect any new features, architectural changes, or significant modifications. Focus on:\n\n1. New features or components added\n2. Changes to the tech stack or dependencies\n3. New API endpoints or services\n4. Architectural modifications\n5. New configuration options or setup steps\n\nIf updates are needed, modify the README.md to:\n- Keep it professional and clear\n- Document new features with brief descriptions\n- Update setup/installation instructions if needed\n- Maintain the existing structure and tone\n- Ensure all information remains accurate and up-to-date\n\nOnly make changes for substantial modifications - ignore minor code refactoring, styling changes, or bug fixes that don't affect functionality or setup."
+  }
+}
