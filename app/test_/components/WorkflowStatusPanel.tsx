@@ -105,12 +105,7 @@ export const WorkflowStatusPanel = memo<StatusPanelProps>(({
     return 'text-zinc-300';
   }, [isCompleted, isFailed]);
 
-  const statusIndicator = useMemo(() => {
-    if (isCompleted) return 'bg-green-400';
-    if (isFailed) return 'bg-red-400';
-    if (shouldPoll) return 'bg-green-400 animate-pulse';
-    return 'bg-zinc-400';
-  }, [isCompleted, isFailed, shouldPoll]);
+
 
   // Calcul de la marge selon l'état du NodePalette
   const panelMargin = useMemo(() => {

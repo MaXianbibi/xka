@@ -62,7 +62,7 @@ export default function WorkflowPage() {
         handleClearWorkflow
     } = useWorkflowExecution();
 
-    const { workflowStatus, isLoading, error, mutate, isRunning, isCompleted, isFailed, progress } = useWorkflowPolling(
+    const { workflowStatus, isLoading, error, isRunning, isCompleted, isFailed, progress } = useWorkflowPolling(
         workflowId,
         shouldPoll
     );
@@ -77,6 +77,50 @@ export default function WorkflowPage() {
     const onConnect = useCallback((connection: Connection) => {
         setEdges((eds) => addEdge({ ...connection, markerEnd: ARROW_MARKER }, eds));
     }, [setEdges]);
+
+    // Gestion du drag & drop
+    const onDragOver = useCallback((event: React.DragEvent) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const onDrop = useCallback((event: React.DragEvent) => {
+        event.preventDefault();
+
+        if (!rfInstance) return;
+
+        const nodeType = event.dataTransfer.getData('application/reactflow');
+        const nodeData = JSON.parse(event.dataTransfer.getData('application/json') || '{}');
+        const dimensionsData = event.dataTransfer.getData('application/dimensions');
+
+        if (!nodeType) return;
+
+        // Récupérer les dimensions réelles du node ou utiliser des valeurs par défaut
+        let dimensions = { width: 320, height: 120 }; // Valeurs par défaut
+        
+        if (dimensionsData) {
+            try {
+                dimensions = JSON.parse(dimensionsData);
+            } catch (error) {
+                console.warn('Erreur lors du parsing des dimensions:', error);
+            }
+        }
+
+        // Calculer la position centrée dynamiquement selon les vraies dimensions
+        const position = rfInstance.screenToFlowPosition({
+            x: event.clientX - (dimensions.width / 2),  // Centrer horizontalement
+            y: event.clientY - (dimensions.height / 2), // Centrer verticalement
+        });
+
+        const newNode = {
+            id: `${nodeType}-${Date.now()}`,
+            type: nodeType,
+            position,
+            data: nodeData
+        };
+
+        setNodes((nds) => [...nds, newNode]);
+    }, [rfInstance, setNodes]);
 
     // Gestion de l'exécution
     const handleRunWorkflow = useCallback(() => {
@@ -130,6 +174,8 @@ export default function WorkflowPage() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
                 colorMode="dark"
                 fitView
                 nodeTypes={nodeTypes}

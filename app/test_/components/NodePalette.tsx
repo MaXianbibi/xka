@@ -9,6 +9,10 @@ interface NodeTemplate {
     description: string;
     defaultData: any;
     color: string;
+    dimensions: {
+        width: number;
+        height: number;
+    };
 }
 
 interface NodePaletteProps {
@@ -26,7 +30,8 @@ const NODE_TEMPLATES: NodeTemplate[] = [
         icon: <MdPlayArrow size={16} />,
         description: 'Démarre le workflow manuellement',
         defaultData: { label: 'Start' },
-        color: 'bg-zinc-700'
+        color: 'bg-zinc-700',
+        dimensions: { width: 320, height: 100 }
     },
     {
         type: 'httpRequestNode',
@@ -34,7 +39,8 @@ const NODE_TEMPLATES: NodeTemplate[] = [
         icon: <MdHttp size={16} />,
         description: 'Effectue une requête HTTP',
         defaultData: { method: 'GET', url: 'https://api.example.com' },
-        color: 'bg-zinc-700'
+        color: 'bg-zinc-700',
+        dimensions: { width: 320, height: 140 }
     },
     {
         type: 'waitingNode',
@@ -42,7 +48,8 @@ const NODE_TEMPLATES: NodeTemplate[] = [
         icon: <MdTimer size={16} />,
         description: 'Attend pendant une durée définie',
         defaultData: { duration: '1000' },
-        color: 'bg-zinc-700'
+        color: 'bg-zinc-700',
+        dimensions: { width: 320, height: 120 }
     }
 ];
 
@@ -117,22 +124,22 @@ const EmptyState = memo<{ searchTerm: string }>(({ searchTerm }) => (
 EmptyState.displayName = 'EmptyState';
 
 // Composant principal
-export const NodePalette: React.FC<NodePaletteProps> = memo(({ 
-    rfInstance, 
-    onAddNode, 
-    isOpen: controlledIsOpen, 
-    onToggle 
+export const NodePalette: React.FC<NodePaletteProps> = memo(({
+    rfInstance,
+    onAddNode,
+    isOpen: controlledIsOpen,
+    onToggle
 }) => {
     const [internalIsOpen, setInternalIsOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
     const setIsOpen = onToggle || setInternalIsOpen;
 
     // Filtrage mémorisé avec debounce virtuel
     const filteredTemplates = useMemo(() => {
         if (!searchTerm.trim()) return NODE_TEMPLATES;
-        
+
         const term = searchTerm.toLowerCase();
         return NODE_TEMPLATES.filter(template =>
             template.label.toLowerCase().includes(term) ||
@@ -159,6 +166,7 @@ export const NodePalette: React.FC<NodePaletteProps> = memo(({
     const onDragStart = useCallback((event: DragEvent, template: NodeTemplate) => {
         event.dataTransfer.setData('application/reactflow', template.type);
         event.dataTransfer.setData('application/json', JSON.stringify(template.defaultData));
+        event.dataTransfer.setData('application/dimensions', JSON.stringify(template.dimensions));
         event.dataTransfer.effectAllowed = 'move';
     }, []);
 
@@ -192,7 +200,7 @@ export const NodePalette: React.FC<NodePaletteProps> = memo(({
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: SCROLLBAR_STYLES }} />
-            
+
             <div className="absolute top-0 right-0 z-10 bg-gradient-to-br from-zinc-900 to-zinc-800 border-l border-zinc-700 shadow-xl w-80 h-full flex flex-col">
                 {/* Header optimisé */}
                 <div className="p-4 border-b border-zinc-700">
