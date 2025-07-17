@@ -118,7 +118,6 @@ export default function WorkflowPage() {
                 <WorkflowControls
                     onRunWorkflow={handleRunWorkflow}
                     onStopPolling={handleStopPolling}
-                    onRefresh={handleRefresh}
                     onClearWorkflow={handleClearWorkflow}
                     isRunning={isRunning}
                     isLoading={isLoading}

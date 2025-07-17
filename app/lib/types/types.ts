@@ -100,7 +100,6 @@ export interface StatusPanelProps {
 export interface WorkflowControlsProps {
   onRunWorkflow: () => void;
   onStopPolling: () => void;
-  onRefresh: () => void;
   onClearWorkflow: () => void;
   isRunning: boolean;
   isLoading: boolean;
