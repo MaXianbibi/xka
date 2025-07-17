@@ -17,6 +17,7 @@ Designed for developers, builders, and advanced users who need more control, les
 - 🧱 **Visual Workflow Builder**
   - React + React Flow powered interface
   - Drag-and-drop nodes to build execution graphs
+  - Node palette for easy addition of workflow components
   - Persisted workflows via PostgreSQL
 
 - 🧠 **Separation of Concerns**

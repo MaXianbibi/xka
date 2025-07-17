@@ -67,7 +67,8 @@ export const WorkflowStatusPanel = memo<StatusPanelProps>(({
   isFailed,
   progress,
   filteredLogs,
-  availableNodes
+  availableNodes,
+  isNodePaletteOpen = true
 }) => {
   // Calculs mémoisés avec vérifications null
   const totalLogs = useMemo(() => {
@@ -111,6 +112,13 @@ export const WorkflowStatusPanel = memo<StatusPanelProps>(({
     return 'bg-zinc-400';
   }, [isCompleted, isFailed, shouldPoll]);
 
+  // Calcul de la marge selon l'état du NodePalette
+  const panelMargin = useMemo(() => {
+    // Si le NodePalette est ouvert : décaler de 340px (largeur du panel + marge)
+    // Si le NodePalette est fermé : décaler de 80px (largeur du bouton + marge)
+    return isNodePaletteOpen ? '340px' : '80px';
+  }, [isNodePaletteOpen]);
+
   // Callbacks mémoisés
   const handleToggleExpand = useCallback(() => {
     setIsExpanded(!isExpanded);
@@ -121,7 +129,7 @@ export const WorkflowStatusPanel = memo<StatusPanelProps>(({
   }, [setActiveTab]);
 
   return (
-    <Panel position="top-right">
+    <Panel position="top-right" style={{ marginRight: panelMargin }}>
       {workflowStatus && (
         <div className={`${PANEL_STYLE} border-2 ${borderColor} ${isExpanded ? 'w-[700px]' : 'w-80'}`}>
           <div className="p-4">

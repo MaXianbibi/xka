@@ -24,6 +24,7 @@ import { useWorkflowLogs } from '@/app/lib/hook/useWorkflowLogs';
 // Components
 import { WorkflowControls } from './components/WorkflowControls';
 import { WorkflowStatusPanel } from './components/WorkflowStatusPanel';
+import { NodePalette } from './components/NodePalette';
 
 // Types and Constants
 import { BaseNodeData } from "@/app/lib/types/types";
@@ -49,6 +50,7 @@ export default function WorkflowPage() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [activeTab, setActiveTab] = useState<'status' | 'logs'>('status');
     const [logFilter, setLogFilter] = useState<'all' | 'workflow' | string>('all');
+    const [isNodePaletteOpen, setIsNodePaletteOpen] = useState(true);
 
     // Custom hooks
     const {
@@ -81,7 +83,17 @@ export default function WorkflowPage() {
         executeWorkflow(rfInstance);
     }, [executeWorkflow, rfInstance]);
 
-    const handleRefresh = useCallback(() => mutate(), [mutate]);
+    // Gestion de l'ajout de nodes
+    const handleAddNode = useCallback((nodeType: string, nodeData: any) => {
+        const newNode = {
+            id: `${nodeType}-${Date.now()}`,
+            type: nodeType,
+            position: nodeData.position || { x: 100, y: 100 },
+            data: { ...nodeData }
+        };
+
+        setNodes((nds) => [...nds, newNode]);
+    }, [setNodes]);
 
     // Effets
     useEffect(() => {
@@ -123,6 +135,13 @@ export default function WorkflowPage() {
                 nodeTypes={nodeTypes}
                 onInit={setRfInstance}
             >
+                <NodePalette
+                    rfInstance={rfInstance}
+                    onAddNode={handleAddNode}
+                    isOpen={isNodePaletteOpen}
+                    onToggle={setIsNodePaletteOpen}
+                />
+
                 <WorkflowControls
                     onRunWorkflow={handleRunWorkflow}
                     onStopPolling={handleStopPolling}
@@ -146,6 +165,7 @@ export default function WorkflowPage() {
                     isCompleted={isCompleted}
                     isFailed={isFailed}
                     progress={progress}
+                    isNodePaletteOpen={isNodePaletteOpen}
                     {...logsMemo}
                 />
 

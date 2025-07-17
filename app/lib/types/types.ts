@@ -95,6 +95,7 @@ export interface StatusPanelProps {
   progress: number;
   filteredLogs: LogItem[];
   availableNodes: WorkflowNodeResult[];
+  isNodePaletteOpen?: boolean;
 }
 
 export interface WorkflowControlsProps {
