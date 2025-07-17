@@ -8,7 +8,7 @@ import WaitingNode from "../../test_/custom_node/WaitingNode";
 export const initialNodes: Node[] = [
     { id: 'c', position: { x: 0, y: 200 }, type: 'httpRequestNode', data: { method: "GET", url: "https://catfact.ninja/fact" } },
     { id: 'b', position: { x: 0, y: 100 }, type: 'manualStartNode', data: { label: '2' } },
-    { id: 'a', position: { x: 0, y: 0 }, type: 'waitingNode', data: { duration: 1000 } },
+    { id: 'a', position: { x: 0, y: 0 }, type: 'waitingNode', data: { duration: "1000" } },
 ];
 
 export const nodeTypes = {

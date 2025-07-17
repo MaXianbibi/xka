@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface WorkflowNode {
   id: string;
   type: string | null;
@@ -104,4 +106,22 @@ export interface WorkflowControlsProps {
   isLoading: boolean;
   shouldPoll: boolean;
   workflowId: string | null;
+}
+
+
+
+export interface WorkflowNodeWrapperProps {
+  data: any;
+  children: ReactNode;
+}
+
+export interface ExecutionData {
+  nodeId?: string;
+  nodeType?: string;
+  status?: 'success' | 'error' | 'running' | 'pending';
+  timestamp?: number;
+  durationMs?: number;
+  result?: any;
+  logs?: string[];
+  meta?: any;
 }
