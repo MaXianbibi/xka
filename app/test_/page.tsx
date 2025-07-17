@@ -91,25 +91,14 @@ export default function WorkflowPage() {
 
         const nodeType = event.dataTransfer.getData('application/reactflow');
         const nodeData = JSON.parse(event.dataTransfer.getData('application/json') || '{}');
-        const dimensionsData = event.dataTransfer.getData('application/dimensions');
 
         if (!nodeType) return;
 
-        // Récupérer les dimensions réelles du node ou utiliser des valeurs par défaut
-        let dimensions = { width: 320, height: 120 }; // Valeurs par défaut
-        
-        if (dimensionsData) {
-            try {
-                dimensions = JSON.parse(dimensionsData);
-            } catch (error) {
-                console.warn('Erreur lors du parsing des dimensions:', error);
-            }
-        }
-
-        // Calculer la position centrée dynamiquement selon les vraies dimensions
+        // Offset simple et intelligent : décaler légèrement vers le haut-gauche
+        // Cela compense naturellement la différence entre le curseur et le centre du ghost
         const position = rfInstance.screenToFlowPosition({
-            x: event.clientX - (dimensions.width / 2),  // Centrer horizontalement
-            y: event.clientY - (dimensions.height / 2), // Centrer verticalement
+            x: event.clientX - 50,  // Décalage horizontal léger
+            y: event.clientY - 30,  // Décalage vertical léger
         });
 
         const newNode = {

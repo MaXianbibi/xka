@@ -53,6 +53,36 @@ const NODE_TEMPLATES: NodeTemplate[] = [
     }
 ];
 
+// Fonction utilitaire pour obtenir les dimensions d'un node de manière dynamique
+const getNodeDimensions = (nodeType: string): { width: number; height: number } => {
+    // Utilise les classes CSS du WrapperNode pour calculer les dimensions
+    const BASE_WIDTH = 320; // w-80 = 320px (classe Tailwind du WrapperNode)
+    
+    // Si on peut accéder au DOM, on essaie de mesurer un node existant
+    if (typeof window !== 'undefined') {
+        const existingNode = document.querySelector(`[data-id*="${nodeType}"]`);
+        if (existingNode) {
+            const rect = existingNode.getBoundingClientRect();
+            return { width: rect.width, height: rect.height };
+        }
+    }
+    
+    // Estimation basée sur la complexité du contenu (plus flexible)
+    const contentComplexity = {
+        'manualStartNode': 0.8,    // Simple, peu de contenu
+        'httpRequestNode': 1.2,    // Plus complexe, plus de champs
+        'waitingNode': 1.0,        // Complexité moyenne
+    };
+    
+    const complexity = contentComplexity[nodeType as keyof typeof contentComplexity] || 1.0;
+    const estimatedHeight = Math.round(100 * complexity); // Base de 100px * complexité
+    
+    return { 
+        width: BASE_WIDTH, 
+        height: estimatedHeight 
+    };
+};
+
 // Styles CSS en constante pour éviter les re-créations
 const SCROLLBAR_STYLES = `
 .node-palette-scrollbar {
