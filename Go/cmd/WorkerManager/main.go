@@ -11,17 +11,18 @@ import (
 	"syscall"
 	"time"
 
-	"go.uber.org/zap"
+	"path/filepath"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"path/filepath"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 
-	"XKA/pkg/RedisClient"
-	"XKA/pkg/logger"
 	"XKA/internal/shared/builder"
 	"XKA/internal/worker-manager/parser"
-
+	"XKA/pkg/RedisClient"
+	"XKA/pkg/logger"
+	"XKA/pkg/pg_client"
 )
 
 // Server configuration constants
@@ -180,7 +181,7 @@ func (s *Server) handleWorkflowSubmission(w http.ResponseWriter, r *http.Request
 		s.writeErrorResponse(w, http.StatusUnprocessableEntity, "Failed to parse workflow", err.Error())
 		return
 	}
-	
+
 	// Log successful parsing with metrics
 	s.logger.Info("Workflow parsed successfully",
 		zap.String("request_id", requestID),
@@ -293,41 +294,39 @@ func (s *Server) handleWorkflowValidation(w http.ResponseWriter, r *http.Request
 	s.writeJSONResponse(w, http.StatusOK, response)
 }
 
-
 func (s *Server) handleGetWorkflow(w http.ResponseWriter, r *http.Request) {
-    id := chi.URLParam(r, "id")
-    if id == "" {
-        s.writeErrorResponse(w, http.StatusBadRequest, "Missing workflow ID", "ID parameter is required")
-        return
-    }
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		s.writeErrorResponse(w, http.StatusBadRequest, "Missing workflow ID", "ID parameter is required")
+		return
+	}
 
-    client := RedisClient.GetClient()
-    if client == nil {
-        s.writeErrorResponse(w, http.StatusInternalServerError, "Redis client not initialized", "Failed to connect to Redis")
-        return
-    }
+	client := RedisClient.GetClient()
+	if client == nil {
+		s.writeErrorResponse(w, http.StatusInternalServerError, "Redis client not initialized", "Failed to connect to Redis")
+		return
+	}
 
-    // Retrieve workflow from Redis
-    listId := "workflow:" + id + ":results"
-    res, err := client.GetFirstKey(listId)
-    if err != nil {
-        s.writeErrorResponse(w, http.StatusNotFound, "Workflow not found", fmt.Sprintf("No workflow found with ID %s", id))
-        return
-    }
+	// Retrieve workflow from Redis
+	listId := "workflow:" + id + ":results"
+	res, err := client.GetFirstKey(listId)
+	if err != nil {
+		s.writeErrorResponse(w, http.StatusNotFound, "Workflow not found", fmt.Sprintf("No workflow found with ID %s", id))
+		return
+	}
 
-    // 🎯 Structure clean - directement les données utiles
-    response := APIResponse{
-        Status:  "success",
-        Message: "Workflow retrieved successfully",
-        Data: map[string]interface{}{
-            "id":      id,
-            "results": res,
-        },
-    }
-    
-    s.writeJSONResponse(w, http.StatusOK, response)
+	// 🎯 Structure clean - directement les données utiles
+	response := APIResponse{
+		Status:  "success",
+		Message: "Workflow retrieved successfully",
+		Data: map[string]interface{}{
+			"id":      id,
+			"results": res,
+		},
+	}
+
+	s.writeJSONResponse(w, http.StatusOK, response)
 }
-
 
 // validateWorkflowPayload performs basic payload structure validation
 func (s *Server) validateWorkflowPayload(payload map[string]interface{}) error {
@@ -357,9 +356,6 @@ func (s *Server) validateWorkflowPayload(payload map[string]interface{}) error {
 	if _, ok := payload["edges"].([]interface{}); !ok {
 		return fmt.Errorf("edges must be an array")
 	}
-
-
-
 
 	return nil
 }
@@ -442,10 +438,10 @@ func main() {
 	defer logger.Log.Sync() // Ensure logs are flushed
 
 	env := os.Getenv("ENV") // "production", "dev", "local", "test"...
-	
+
 	if env != "production" {
-		envPath := filepath.Join(".env")
-		err := godotenv.Load(".env")
+		envPath := filepath.Join("..", "..", "..", ".env") // <- 3 niveaux au-dessus de WorkerManager
+		err := godotenv.Load(envPath)
 		if err != nil {
 			logger.Log.Warn("No .env file found, using default environment variables",
 				zap.String("path", envPath),
@@ -458,8 +454,6 @@ func main() {
 		}
 	}
 
-	
-
 	client := RedisClient.GetClient()
 	if client == nil {
 		logger.Log.Fatal("Failed to initialize Redis client")
@@ -470,6 +464,8 @@ func main() {
 		zap.String("version", "1.0.0"),
 		zap.Time("start_time", time.Now()),
 	)
+
+	pg_client.GetClient()
 
 	// Create and start server
 	server := NewServer()
