@@ -22,9 +22,9 @@ import { useWorkflowExecution } from '@/app/lib/hook/useWorkflowExecution';
 import { useWorkflowLogs } from '@/app/lib/hook/useWorkflowLogs';
 
 // Components
-import { WorkflowControls } from './components/WorkflowControls';
-import { WorkflowStatusPanel } from './components/WorkflowStatusPanel';
-import { NodePalette } from './components/NodePalette';
+import { WorkflowControls } from '@/app/components/workflow/WorkflowControls';
+import { WorkflowStatusPanel } from '@/app/components/workflow/WorkflowStatusPanel';
+import { NodePalette } from '@/app/components/workflow/NodePalette';
 
 // Types and Constants
 import { BaseNodeData } from "@/app/lib/types/types";

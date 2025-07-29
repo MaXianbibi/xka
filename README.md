@@ -20,6 +20,12 @@ Designed for developers, builders, and advanced users who need more control, les
   - Node palette for easy addition of workflow components
   - Persisted workflows via PostgreSQL
 
+- 📊 **Comprehensive Dashboard**
+  - Real-time execution statistics and performance metrics
+  - Workflow management with status indicators and recent activity
+  - Execution history with filtering and detailed logs
+  - Tab-based navigation for overview and historical data
+
 - 🧠 **Separation of Concerns**
   - Next.js frontend (auth, user dashboard, DB)
   - Go backend (job queue API, task management)
@@ -32,3 +38,15 @@ Designed for developers, builders, and advanced users who need more control, les
 - ⚡ **Redis-backed Job Queue**
   - Fast and reliable queueing layer
   - Priority routing and per-type worker targeting (LLM, HTTP, compute, etc.)
+
+---
+
+## 🎨 User Interface
+
+The XKA dashboard provides a modern, dark-themed interface built with Next.js and Tailwind CSS:
+
+- **Dashboard Overview**: Real-time statistics showing total executions, success rates, and performance metrics
+- **Workflow Management**: Card-based view of all workflows with filtering, status indicators, and detailed metadata
+- **Execution History**: Detailed table view of workflow runs with filtering capabilities
+- **Responsive Design**: Optimized for desktop and mobile viewing
+- **Status Indicators**: Color-coded status badges (success/failed/running) throughout the interface
