@@ -1,6 +1,6 @@
 // hooks/useWorkflowPolling.ts
 import useSWR from 'swr';
-import { getWorflow } from '@/app/lib/Workflow/workflow';
+import { getWorflow } from '@/app/lib/workflowTransfer/workflowTransfer';
 import { SaveWorkflowResult, WorkflowExecutionResult } from '../types/types';
 
 function calculateProgress(workflow: WorkflowExecutionResult): number {

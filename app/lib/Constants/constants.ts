@@ -1,7 +1,7 @@
 import { Edge, Node } from "@xyflow/react";
-import HttpRequestNode from "../../../components/flow/HttpRequestNode";
-import ManualStartNode from "../../../components/flow/ManuelStartNode";
-import WaitingNode from "../../../components/flow/WaitingNode";
+import HttpRequestNode from "@/app/components/flow/HttpRequestNode";
+import ManualStartNode from "@/app/components/flow/ManuelStartNode";
+import WaitingNode from "@/app/components/flow/WaitingNode";
 
 
 

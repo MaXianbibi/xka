@@ -257,7 +257,8 @@ func (s *Server) processWorkflowAsync(parsedWorkflow *parser.Payload, payload ma
 }
 
 // saveWorkflowToRedis handles Redis storage with proper error handling
-func (s *Server) saveWorkflowToRedis(jsonData []byte, requestID string) error {
+func (s *Server) saveWorkflowToRedis(jsonData []byte, _ string) error {
+	
 	client := RedisClient.GetClient()
 	if client == nil {
 		return fmt.Errorf("redis client not initialized")

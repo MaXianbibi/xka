@@ -17,9 +17,9 @@ import {
 import '@xyflow/react/dist/style.css';
 
 // Hooks
-import { useWorkflowPolling } from '@/app/lib/hook/pooling';
-import { useWorkflowExecution } from '@/app/lib/hook/useWorkflowExecution';
-import { useWorkflowLogs } from '@/app/lib/hook/useWorkflowLogs';
+import { useWorkflowPolling } from '@/app/lib/hooks/pooling';
+import { useWorkflowExecution } from '@/app/lib/hooks/useWorkflowExecution';
+import { useWorkflowLogs } from '@/app/lib/hooks/useWorkflowLogs';
 
 // Components
 import { WorkflowControls } from '@/app/components/workflow/WorkflowControls';

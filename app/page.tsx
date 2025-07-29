@@ -2,11 +2,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { DashboardHeader } from './components/dashboard/DashboardHeader'
-import { StatsOverview } from './components/dashboard/StatsOverview'
-import { TabNavigation } from './components/dashboard/TabNavigation'
-import { WorkflowsOverview } from './components/dashboard/WorkflowsOverview'
-import { ExecutionHistory } from './components/dashboard/ExecutionHistory'
+import { DashboardHeader } from './components/MainView/DashboardHeader'
+import { StatsOverview } from './components/MainView/StatsOverview'
+import { TabNavigation } from './components/MainView/TabNavigation'
+import { WorkflowsOverview } from './components/MainView/WorkflowsOverview'
+import { ExecutionHistory } from './components/MainView/ExecutionHistory'
 
 // Mock data - à remplacer par de vraies données plus tard
 const MOCK_STATS = {
