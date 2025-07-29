@@ -67,21 +67,24 @@ docker-compose up worker-manager worker redis
 ## Frontend Development Patterns
 
 ### Component Architecture
-- **Location**: Primary frontend code in `app/test_/` directory
+- **Location**: Primary frontend code organized in `app/` directory
 - **Structure**: 
-  - `page.tsx` - Main workflow page with React Flow integration
-  - `components/` - Reusable UI components (StatusPanel, Controls, Metrics, etc.)
-  - `custom_node/` - React Flow node implementations
-  - `custom_edges/` - React Flow edge logic
+  - `app/page.tsx` - Main dashboard page
+  - `app/workflow/page.tsx` - Workflow builder page with React Flow integration
+  - `app/components/flow/` - React Flow node implementations (HttpRequestNode, ManuelStartNode, WaitingNode, WrapperNode)
+  - `app/components/MainView/` - Dashboard components (DashboardHeader, ExecutionHistory, WorkflowCard, StatsOverview, etc.)
+  - `app/components/workflow/` - Workflow-specific UI (LogsFilter, NodePalette, WorkflowControls, WorkflowMetrics, etc.)
+  - `app/components/ui/` - Reusable UI components (Switch)
+  - `app/lib/` - Utilities, hooks, types, and business logic
 
 ### React Patterns
-- **Hooks**: Extensive use of custom hooks for state management
-  - `useWorkflowPolling` - Real-time workflow status updates
-  - `useWorkflowExecution` - Workflow execution control
-  - `useWorkflowLogs` - Log filtering and processing
+- **Hooks**: Custom hooks located in `app/lib/hooks/`
+  - `pooling.ts` - Real-time workflow status updates and polling logic
+  - `useWorkflowExecution.ts` - Workflow execution control
+  - `useWorkflowLogs.ts` - Log filtering and processing
 - **State Management**: React hooks with `useNodesState`, `useEdgesState` from React Flow
 - **Memoization**: Heavy use of `useMemo`, `useCallback`, and `memo` for performance
-- **Component Composition**: Wrapper pattern for node components
+- **Component Composition**: Wrapper pattern for node components (`WrapperNode.tsx`)
 
 ### Styling Conventions
 - **Tailwind Classes**: Extensive use of utility classes with consistent patterns
@@ -94,16 +97,26 @@ docker-compose up worker-manager worker redis
 - **Animations**: `animate-pulse` for live indicators, `transition-all` for smooth interactions
 
 ### Code Organization
-- **Constants**: Extract style constants at component top (e.g., `PANEL_STYLE`, `HEADER_STYLE`)
-- **Type Safety**: Comprehensive TypeScript interfaces for all props and data structures
+- **Constants**: Centralized in `app/lib/Constants/constants.ts`
+- **Types**: All TypeScript interfaces in `app/lib/types/types.ts`
+- **Utilities**: Organized by purpose in `app/lib/utils/`
+  - `classNames.ts` - CSS class utilities (likely using clsx)
+  - `dateUtils.ts` - Date formatting and manipulation
+  - `workflow-utils.ts` - Workflow-specific utility functions
+- **HTTP Client**: Centralized in `app/lib/httpClient/httpClient.ts`
 - **Error Handling**: Graceful degradation with null checks and fallbacks
 - **Performance**: Memoized calculations, extracted sub-components, parallel tool calls
 
 ### React Flow Integration
-- **Node Types**: Custom node implementations with execution status visualization
-- **Edge Handling**: Custom edge deletion logic and connection management
+- **Node Types**: Custom node implementations in `app/components/flow/`
+  - `HttpRequestNode.tsx` - HTTP request execution nodes
+  - `ManuelStartNode.tsx` - Manual trigger nodes
+  - `WaitingNode.tsx` - Delay/waiting nodes
+  - `WrapperNode.tsx` - Base wrapper for all node types
+- **Edge Handling**: Custom edge deletion logic in `canDeleteEdge.tsx`
 - **Real-time Updates**: Live status updates reflected in node appearance
-- **Controls**: Custom toolbar with workflow execution controls
+- **Controls**: Workflow execution controls in `app/components/workflow/WorkflowControls.tsx`
+- **Node Palette**: Drag-and-drop node creation in `app/components/workflow/NodePalette.tsx`
 
 ### Data Flow Patterns
 - **Polling**: Real-time status updates with conditional polling
