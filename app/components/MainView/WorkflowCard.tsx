@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react'
 import { FiEdit2, FiCopy, FiTrash2, FiMoreHorizontal, FiPlay } from 'react-icons/fi'
 import { clsx } from 'clsx'

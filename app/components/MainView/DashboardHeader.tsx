@@ -1,5 +1,6 @@
 import React from 'react'
 import { FiPlus } from 'react-icons/fi'
+import { RefreshButton } from '../ui/RefreshButton'
 
 export function DashboardHeader() {
   return (
@@ -15,10 +16,14 @@ export function DashboardHeader() {
             </p>
           </div>
 
-          <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 shadow-sm">
-            <FiPlus className="w-5 h-5" />
-            <span>Nouveau Workflow</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <RefreshButton />
+            
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 shadow-sm">
+              <FiPlus className="w-5 h-5" />
+              <span>Nouveau Workflow</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -50,15 +50,29 @@ export function WorkflowsOverview({ workflows }: WorkflowsOverviewProps) {
 
       {/* Enhanced workflows list with subtle separators */}
       <div className="divide-y divide-zinc-800/30">
-        {workflows.map((workflow, index) => (
-          <div
-            key={workflow.id}
-            className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <WorkflowCard workflow={workflow} />
+        {workflows.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="text-center space-y-4">
+              <div>
+                <h3 className="text-lg font-medium text-white mb-2">No workflows yet</h3>
+                <p className="text-zinc-400 text-sm mb-6">Create your first workflow to get started with automation</p>
+              </div>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                Create New Workflow
+              </button>
+            </div>
           </div>
-        ))}
+        ) : (
+          workflows.map((workflow, index) => (
+            <div
+              key={workflow.id}
+              className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <WorkflowCard workflow={workflow} />
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
