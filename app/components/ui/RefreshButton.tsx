@@ -22,13 +22,12 @@ export function RefreshButton() {
     <button
       onClick={handleRefresh}
       disabled={isRefreshing}
-      className="flex items-center space-x-2 px-3 py-2 bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 text-white rounded-lg text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 text-white px-3.5 py-3.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-sm"
       title="Rafraîchir les données"
     >
-      <FiRefreshCw 
-        className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} 
+      <FiRefreshCw
+        className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
       />
-      <span>{isRefreshing ? 'Rafraîchissement...' : 'Rafraîchir'}</span>
     </button>
   )
 }

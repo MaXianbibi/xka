@@ -85,14 +85,6 @@ export default async function Home() {
           avgRuntime: 0
         }} />
 
-        {workflows.length === 0 && (
-          <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-            <p className="text-yellow-400">
-              ⚠️ Aucun workflow trouvé ou erreur de connexion à la base de données.
-            </p>
-          </div>
-        )}
-
         <DashboardContent
           workflows={transformedWorkflows}
           executions={[]}
