@@ -19,9 +19,12 @@ export function DashboardHeader() {
           <div className="flex items-center space-x-3">
             <RefreshButton />
             
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 shadow-sm">
-              <FiPlus className="w-5 h-5" />
+            <button className="group relative bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 shadow-sm marching-border-primary overflow-hidden">
+              <FiPlus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
               <span>Nouveau Workflow</span>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg" />
             </button>
           </div>
         </div>

@@ -5,12 +5,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -23,4 +17,269 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Variantes de boutons avec marching border */
+
+/* Bouton primaire avec marching border - seulement pour les boutons avec bordures */
+.marching-border-primary.border-style::before,
+.marching-border-primary[data-marching="true"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.5rem;
+  padding: 2px;
+  background: linear-gradient(45deg, transparent 25%, #3b82f6 25%, #3b82f6 50%, transparent 50%, transparent 75%, #3b82f6 75%);
+  background-size: 12px 12px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: marching-ants-fast 1.5s linear infinite;
+}
+
+.marching-border-primary.border-style:hover::before,
+.marching-border-primary[data-marching="true"]:hover::before {
+  opacity: 0.6;
+}
+
+/* Bouton secondaire avec marching border - seulement pour les boutons avec bordures */
+.marching-border-secondary.border-style::before,
+.marching-border-secondary[data-marching="true"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.5rem;
+  padding: 1px;
+  background: linear-gradient(45deg, transparent 30%, #71717a 30%, #71717a 60%, transparent 60%, transparent 80%, #71717a 80%);
+  background-size: 8px 8px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: marching-ants-slow 3s linear infinite;
+}
+
+.marching-border-secondary.border-style:hover::before,
+.marching-border-secondary[data-marching="true"]:hover::before {
+  opacity: 0.8;
+}
+
+/* Bouton action avec marching border */
+.marching-border-action {
+  position: relative;
+}
+
+.marching-border-action::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.375rem;
+  padding: 1px;
+  background: linear-gradient(45deg, transparent 20%, #10b981 20%, #10b981 40%, transparent 40%, transparent 60%, #10b981 60%, #10b981 80%, transparent 80%);
+  background-size: 6px 6px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  animation: marching-ants-fast 1s linear infinite;
+}
+
+.marching-border-action:hover::before {
+  opacity: 1;
+}
+
+/* Animations avec différentes vitesses */
+@keyframes marching-ants-fast {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 12px 12px;
+  }
+}
+
+@keyframes marching-ants-slow {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 8px 8px;
+  }
+}
+
+/*
+ Custom Scrollbar Styling */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+  border: 1px solid #27272a;
+  transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+  border-color: #3f3f46;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #71717a;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Thin scrollbar variant for smaller areas */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for specific containers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(39, 39, 42, 0.3);
+  border-radius: 4px;
+  margin: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #52525b 0%, #3f3f46 100%);
+  border-radius: 4px;
+  border: 1px solid #27272a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #71717a 0%, #52525b 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Overlay scrollbar for floating elements */
+.scrollbar-overlay {
+  overflow: overlay;
+}
+
+.scrollbar-overlay::-webkit-scrollbar {
+  width: 12px;
+  background: transparent;
+}
+
+.scrollbar-overlay::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-overlay::-webkit-scrollbar-thumb {
+  background: rgba(63, 63, 70, 0.8);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  backdrop-filter: blur(4px);
+}
+
+.scrollbar-overlay::-webkit-scrollbar-thumb:hover {
+  background: rgba(82, 82, 91, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+/* 
+Dropdown menu scrollbar styling */
+.dropdown-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border-radius: 2px;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
+}
+
+/* Hover effects for better UX */
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #71717a 0%, #52525b 100%);
+}
+
+/* Auto-hide scrollbar that appears on hover */
+.scrollbar-auto-hide::-webkit-scrollbar {
+  width: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scrollbar-auto-hide:hover::-webkit-scrollbar {
+  opacity: 1;
+}
+
+.scrollbar-auto-hide::-webkit-scrollbar-track {
+  background: rgba(39, 39, 42, 0.2);
+  border-radius: 4px;
+}
+
+.scrollbar-auto-hide::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+  border: 1px solid #27272a;
+}
+
+.scrollbar-auto-hide::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
 }

@@ -22,6 +22,7 @@ export async function createWorkflowAction(data: Omit<NewWorkflow, 'id' | 'creat
     
     // Invalider le cache
     revalidateTag('workflows')
+    revalidateTag('stats')
     
     return { success: true, workflow }
   } catch (error) {
@@ -42,6 +43,7 @@ export async function updateWorkflowAction(
     
     // Invalider le cache
     revalidateTag('workflows')
+    revalidateTag('stats')
     revalidateTag(`workflow-${id}`)
     
     return { success: true, workflow }
@@ -60,6 +62,7 @@ export async function deleteWorkflowAction(id: string) {
     
     // Invalider le cache
     revalidateTag('workflows')
+    revalidateTag('stats')
     revalidateTag(`workflow-${id}`)
     
     return { success: true, workflow }
@@ -74,5 +77,6 @@ export async function deleteWorkflowAction(id: string) {
  */
 export async function refreshWorkflowsAction() {
   revalidateTag('workflows')
+  revalidateTag('stats')
   redirect('/')
 }
