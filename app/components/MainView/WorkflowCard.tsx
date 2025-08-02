@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { FiEdit2, FiCopy, FiTrash2, FiMoreHorizontal, FiPlay } from 'react-icons/fi'
 import { clsx } from 'clsx'
 import { formatRelativeTime, getTagColor } from '@/app/lib/utils'
-import { Switch } from '@/app/components/ui/Switch'
+import { Switch } from '@/app/components/ui'
 
 interface Workflow {
   id: string

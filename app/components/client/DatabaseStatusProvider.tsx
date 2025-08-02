@@ -3,9 +3,7 @@
 import { DatabaseAlert } from '../ui/DatabaseAlert'
 import { StatsOverview } from '../MainView/StatsOverview'
 import { DashboardContent } from '../MainView/DashboardContent'
-import { StatsSkeleton, WorkflowsSkeleton } from '../ui/Skeleton'
-import { ErrorBoundary } from '../ui/ErrorBoundary'
-import { Button } from '../ui/Button'
+import { StatsSkeleton, WorkflowsSkeleton, ErrorBoundary, Button } from '../ui'
 import { useDashboard } from '@/app/lib/hooks/useDashboard'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { formatRelativeTime, getTagColor } from '@/app/lib/utils'
-import { Switch } from '@/app/components/ui/Switch'
+import { Switch } from '@/app/components/ui'
 import { WorkflowActions } from '../client/WorkflowActions'
 
 interface Workflow {

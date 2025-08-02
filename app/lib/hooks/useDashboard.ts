@@ -2,7 +2,7 @@
 
 import useSWR from 'swr'
 import { useEffect, useRef } from 'react'
-import toast from 'react-hot-toast'
+import { showToast } from '../utils/toast'
 
 import { getDashboardData } from '../actions/dashboard'
 
@@ -35,23 +35,9 @@ export function useDashboard() {
   useEffect(() => {
     if (!isFirstLoad.current && data?.dbStatus !== undefined && previousDbStatus.current !== null) {
       if (!previousDbStatus.current && data.dbStatus) {
-        toast.success('Base de données reconnectée !', {
-          duration: 4000,
-          style: {
-            background: '#065f46',
-            color: '#fff',
-            border: '1px solid #10b981',
-          },
-        })
+        showToast.success('Base de données reconnectée !')
       } else if (previousDbStatus.current && !data.dbStatus) {
-        toast.error('Connexion à la base de données perdue', {
-          duration: 6000,
-          style: {
-            background: '#7f1d1d',
-            color: '#fff',
-            border: '1px solid #ef4444',
-          },
-        })
+        showToast.error('Connexion à la base de données perdue')
       }
     }
 

@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from './index'
 import { refreshWorkflowsAction } from '@/app/lib/actions/dashboard'
 
 export function RefreshButton() {
@@ -14,6 +14,7 @@ export function RefreshButton() {
       await refreshWorkflowsAction()
     } catch (error) {
       console.error('Erreur lors du rafraîchissement:', error)
+    } finally {
       setIsRefreshing(false)
     }
   }
