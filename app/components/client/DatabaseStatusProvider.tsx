@@ -24,16 +24,17 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     refresh()
   }
 
-  // LOGIQUE SIMPLE : 
-  // 1. DB offline → Alerte jaune + skeletons
-  // 2. DB online + erreur → Message rouge
-  // 3. Sinon → Contenu normal
+  // LOGIQUE OPTIMISTE : Utiliser les données initiales jusqu'à ce qu'on ait des données client
+  // Cela évite le flash d'erreur au chargement
+  const currentWorkflows = workflows.length > 0 ? workflows : initialData.workflows
+  const currentStats = stats.totalExecutions > 0 || !isLoading ? stats : initialData.stats
+  const currentDbStatus = dbStatus !== undefined ? dbStatus : initialData.dbStatus
 
-  // CAS 1: Base de données offline
-  if (!dbStatus) {
+  // CAS 1: Base de données confirmée offline après vérification
+  if (currentDbStatus === false && !isLoading) {
     return (
       <>
-        <DatabaseAlert isVisible={true} onRetry={handleRetry} />
+        <DatabaseAlert isVisible={true} onRetry={handleRetry} delay={500} />
         <div className="p-6 space-y-8">
           <StatsSkeleton />
           <WorkflowsSkeleton />
@@ -42,8 +43,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     )
   }
 
-  // CAS 2: Base de données online mais erreur de chargement
-  if (error) {
+  // CAS 2: Erreur confirmée après chargement (pas pendant l'hydratation)
+  if (error && !isLoading && currentDbStatus !== false) {
     return (
       <div className="p-6">
         <div className="p-6 bg-red-900/20 border border-red-600/30 rounded-lg">
@@ -72,15 +73,23 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     )
   }
 
-  // CAS 3: Tout va bien - afficher le contenu
+  // CAS 3: Affichage normal avec données optimistes
   return (
     <div className="p-6 space-y-8">
       <ErrorBoundary>
-        {isLoading ? <StatsSkeleton /> : <StatsOverview stats={stats} />}
+        {isLoading && currentStats.totalExecutions === 0 ? (
+          <StatsSkeleton />
+        ) : (
+          <StatsOverview stats={currentStats} />
+        )}
       </ErrorBoundary>
 
       <ErrorBoundary>
-        {isLoading ? <WorkflowsSkeleton /> : <DashboardContent workflows={workflows} executions={[]} />}
+        {isLoading && currentWorkflows.length === 0 ? (
+          <WorkflowsSkeleton />
+        ) : (
+          <DashboardContent workflows={currentWorkflows} executions={[]} />
+        )}
       </ErrorBoundary>
     </div>
   )

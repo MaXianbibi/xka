@@ -7,35 +7,40 @@ import { getDashboardData } from '../actions/dashboard'
 
 export function useDashboard() {
   const previousDbStatus = useRef<boolean | null>(null)
+  const isFirstLoad = useRef(true)
 
   const { data, error, mutate, isLoading } = useSWR(
     'dashboard-data',
     getDashboardData,
     {
-      refreshInterval: 30000, // Polling unifié toutes les 30 secondes
+      refreshInterval: 30000,
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       dedupingInterval: 5000,
-      errorRetryCount: 2,
+      errorRetryCount: 1, // Réduire les retry pour éviter les erreurs répétées
       errorRetryInterval: 10000,
+      // Pas de fallbackData pour éviter les états incohérents
+      onSuccess: () => {
+        isFirstLoad.current = false
+      },
       onError: (error) => {
-        console.warn('Dashboard data fetch failed:', error)
+        // Ne logger que si ce n'est pas le premier chargement
+        if (!isFirstLoad.current) {
+          console.warn('Dashboard data fetch failed:', error)
+        }
       }
     }
   )
 
-  // Gérer les notifications de changement d'état de la DB
+  // Gérer les notifications de changement d'état de la DB (seulement après le premier chargement)
   useEffect(() => {
-    if (data?.dbStatus !== undefined && previousDbStatus.current !== null) {
-      // Si la DB redevient disponible
+    if (!isFirstLoad.current && data?.dbStatus !== undefined && previousDbStatus.current !== null) {
       if (!previousDbStatus.current && data.dbStatus) {
         toast.success('Base de données reconnectée !', {
           duration: 4000,
-          icon: '🟢'
+          icon: '�'
         })
-      }
-      // Si la DB devient indisponible
-      else if (previousDbStatus.current && !data.dbStatus) {
+      } else if (previousDbStatus.current && !data.dbStatus) {
         toast.error('Connexion à la base de données perdue', {
           duration: 6000,
           icon: '🔴'
@@ -48,10 +53,10 @@ export function useDashboard() {
     }
   }, [data?.dbStatus])
 
-  // État final simple
-  const dbStatus = data?.dbStatus ?? false
-  const finalError = data?.error || null // Ignorer les erreurs SWR si on a des données
-  
+  // État stable : ne pas changer brusquement pendant l'hydratation
+  const dbStatus = data?.dbStatus
+  const finalError = !isFirstLoad.current ? (data?.error || null) : null
+
   return {
     workflows: data?.workflows || [],
     stats: data?.stats || {
@@ -62,7 +67,7 @@ export function useDashboard() {
       avgRuntime: 0
     },
     dbStatus,
-    isLoading,
+    isLoading: isLoading || isFirstLoad.current,
     error: finalError,
     refresh: mutate
   }
