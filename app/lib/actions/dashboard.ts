@@ -4,31 +4,51 @@ import { getCachedWorkflows, getCachedStats } from '../cache/workflowCache'
 import { isDatabaseAvailable } from '../utils/databaseStatus'
 
 export async function getDashboardData() {
-  try {
-    const [workflows, stats, dbStatus] = await Promise.all([
-      getCachedWorkflows(),
-      getCachedStats(),
-      isDatabaseAvailable()
-    ])
+  const defaultStats = {
+    totalExecutions: 0,
+    successfulExecutions: 0,
+    failedExecutions: 0,
+    failureRate: 0,
+    avgRuntime: 0
+  }
 
+  // Stratégie simple : essayer de charger les workflows
+  // Si ça échoue avec une erreur de connexion DB → DB offline
+  // Sinon → DB online
+  
+  try {
+    const workflows = await getCachedWorkflows()
+    const stats = await getCachedStats()
+    
+    // Si on arrive ici, la DB fonctionne
     return {
       workflows,
       stats,
-      dbStatus,
+      dbStatus: true,
       error: null
     }
-  } catch (error: any) {
-    return {
-      workflows: [],
-      stats: {
-        totalExecutions: 0,
-        successfulExecutions: 0,
-        failedExecutions: 0,
-        failureRate: 0,
-        avgRuntime: 0
-      },
-      dbStatus: false,
-      error: error.message || 'Failed to load dashboard data'
+  } catch (err: any) {
+    // Vérifier si c'est une erreur de connexion DB
+    const isDbError = err.message?.includes('Database connection failed') || 
+                      err.message?.includes('ECONNREFUSED') ||
+                      err.message?.includes('Failed query')
+    
+    if (isDbError) {
+      // DB offline
+      return {
+        workflows: [],
+        stats: defaultStats,
+        dbStatus: false,
+        error: null // Pas d'erreur, juste DB offline
+      }
+    } else {
+      // Autre erreur
+      return {
+        workflows: [],
+        stats: defaultStats,
+        dbStatus: true,
+        error: err.message || 'Erreur de chargement'
+      }
     }
   }
 }

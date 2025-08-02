@@ -25,23 +25,28 @@ export interface Stats {
 // Cache unifié pour les workflows
 export const getCachedWorkflows = unstable_cache(
   async (): Promise<SimpleWorkflow[]> => {
-    const workflows = await getAllWorkflows({
-      orderBy: 'updatedAt',
-      order: 'desc'
-    })
-    
-    return workflows.map(workflow => ({
-      id: workflow.id,
-      name: workflow.name,
-      tag: 'General',
-      isActive: true,
-      lastExecuted: 'Never',
-      lastUpdated: workflow.updatedAt.toISOString(),
-      createdAt: workflow.createdAt.toISOString(),
-      status: 'active',
-      executions: 0,
-      avgRuntime: 0
-    }))
+    try {
+      const workflows = await getAllWorkflows({
+        orderBy: 'updatedAt',
+        order: 'desc'
+      })
+      
+      return workflows.map(workflow => ({
+        id: workflow.id,
+        name: workflow.name,
+        tag: 'General',
+        isActive: true,
+        lastExecuted: 'Never',
+        lastUpdated: workflow.updatedAt.toISOString(),
+        createdAt: workflow.createdAt.toISOString(),
+        status: 'active',
+        executions: 0,
+        avgRuntime: 0
+      }))
+    } catch (error) {
+      // Re-throw l'erreur pour que la Server Action puisse la capturer
+      throw error
+    }
   },
   ['workflows'],
   { revalidate: 300, tags: ['workflows'] }
@@ -50,14 +55,19 @@ export const getCachedWorkflows = unstable_cache(
 // Cache unifié pour les stats
 export const getCachedStats = unstable_cache(
   async (): Promise<Stats> => {
-    const workflows = await getAllWorkflows()
-    
-    return {
-      totalExecutions: workflows.length,
-      successfulExecutions: 0,
-      failedExecutions: 0,
-      failureRate: 0,
-      avgRuntime: 0
+    try {
+      const workflows = await getAllWorkflows()
+      
+      return {
+        totalExecutions: workflows.length,
+        successfulExecutions: 0,
+        failedExecutions: 0,
+        failureRate: 0,
+        avgRuntime: 0
+      }
+    } catch (error) {
+      // Re-throw l'erreur pour que la Server Action puisse la capturer
+      throw error
     }
   },
   ['stats'],

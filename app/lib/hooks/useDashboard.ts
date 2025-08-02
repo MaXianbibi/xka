@@ -7,7 +7,7 @@ import { getDashboardData } from '../actions/dashboard'
 
 export function useDashboard() {
   const previousDbStatus = useRef<boolean | null>(null)
-  
+
   const { data, error, mutate, isLoading } = useSWR(
     'dashboard-data',
     getDashboardData,
@@ -42,12 +42,16 @@ export function useDashboard() {
         })
       }
     }
-    
+
     if (data?.dbStatus !== undefined) {
       previousDbStatus.current = data.dbStatus
     }
   }, [data?.dbStatus])
 
+  // État final simple
+  const dbStatus = data?.dbStatus ?? false
+  const finalError = data?.error || null // Ignorer les erreurs SWR si on a des données
+  
   return {
     workflows: data?.workflows || [],
     stats: data?.stats || {
@@ -57,9 +61,9 @@ export function useDashboard() {
       failureRate: 0,
       avgRuntime: 0
     },
-    dbStatus: data?.dbStatus ?? true,
+    dbStatus,
     isLoading,
-    error: error || data?.error,
+    error: finalError,
     refresh: mutate
   }
 }

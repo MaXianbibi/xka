@@ -21,7 +21,7 @@ export function DatabaseAlert({ isVisible, onRetry }: DatabaseAlertProps) {
   }
 
   return (
-    <div className="mx-6 mb-4 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-lg flex items-center gap-3">
+    <div className="mx-6 my-4 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-lg flex items-center gap-3">
       <AlertTriangle className="h-5 w-5 text-yellow-400 flex-shrink-0" />
       <div className="flex-1">
         <h3 className="text-yellow-400 font-medium text-sm">
