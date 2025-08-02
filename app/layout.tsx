@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from 'react-hot-toast';
 
 import Dashboard from "@/app/Dashboard/Page"
 
@@ -33,6 +34,27 @@ export default function RootLayout({
           <Dashboard />
           {children}
         </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#18181b',
+              color: '#fff',
+              border: '1px solid #3f3f46',
+            },
+            success: {
+              style: {
+                border: '1px solid #22c55e',
+              },
+            },
+            error: {
+              style: {
+                border: '1px solid #ef4444',
+              },
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -25,6 +25,7 @@ Designed for developers, builders, and advanced users who need more control, les
   - Workflow management with status indicators and recent activity
   - Execution history with filtering and detailed logs
   - Tab-based navigation for overview and historical data
+  - Database connection monitoring with graceful degradation
 
 - 🧠 **Separation of Concerns**
   - Next.js frontend (auth, user dashboard, DB)
@@ -50,3 +51,6 @@ The XKA dashboard provides a modern, dark-themed interface built with Next.js an
 - **Execution History**: Detailed table view of workflow runs with filtering capabilities
 - **Responsive Design**: Optimized for desktop and mobile viewing
 - **Status Indicators**: Color-coded status badges (success/failed/running) throughout the interface
+- **Advanced Database Monitoring**: Real-time database connection monitoring with server-side and client-side status checking
+- **Graceful Degradation**: Seamless fallback to demo data when database is unavailable, with automatic retry capabilities
+- **Resilient Architecture**: Hybrid SSR/client-side approach ensures optimal performance even during database outages

@@ -29,25 +29,33 @@ export async function getAllWorkflows(options?: {
     limit?: number
     offset?: number
 }) {
-    // Construire la query de base
-    let query = db.select().from(workflows)
+    try {
+        // Construire la query de base
+        let query = db.select().from(workflows)
 
-    // Ajouter le tri si spécifié
-    if (options?.orderBy) {
-        const orderFn = options.order === 'desc' ? desc : asc
-        const column = workflows[options.orderBy]
-        query = query.orderBy(orderFn(column)) as typeof query
-    }
+        // Ajouter le tri si spécifié
+        if (options?.orderBy) {
+            const orderFn = options.order === 'desc' ? desc : asc
+            const column = workflows[options.orderBy]
+            query = query.orderBy(orderFn(column)) as typeof query
+        }
 
-    // Ajouter la pagination si spécifiée
-    if (options?.limit) {
-        query = query.limit(options.limit) as typeof query
-    }
-    if (options?.offset) {
-        query = query.offset(options.offset) as typeof query
-    }
+        // Ajouter la pagination si spécifiée
+        if (options?.limit) {
+            query = query.limit(options.limit) as typeof query
+        }
+        if (options?.offset) {
+            query = query.offset(options.offset) as typeof query
+        }
 
-    return await query
+        return await query
+    } catch (error: any) {
+        // Améliorer le message d'erreur pour les problèmes de connexion
+        if (error?.cause?.code === 'ECONNREFUSED') {
+            throw new Error('Database connection failed: PostgreSQL server is not running. Please start the database with "docker-compose up"')
+        }
+        throw error
+    }
 }
 
 /**
