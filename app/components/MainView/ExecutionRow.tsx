@@ -1,6 +1,6 @@
 import React from 'react'
 import { format, parseISO } from 'date-fns'
-import { getStatusBadgeClasses } from '@/app/lib/utils/dateUtils'
+import { getStatusBadgeClasses } from '@/app/lib/utils'
 
 interface Execution {
   id: string

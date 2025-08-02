@@ -3,9 +3,9 @@
 import { DatabaseAlert } from '../ui/DatabaseAlert'
 import { StatsOverview } from '../MainView/StatsOverview'
 import { DashboardContent } from '../MainView/DashboardContent'
-import { StatsSkeleton } from '../skeletons/StatsSkeleton'
-import { WorkflowsSkeleton } from '../skeletons/WorkflowsSkeleton'
+import { StatsSkeleton, WorkflowsSkeleton } from '../ui/Skeleton'
 import { ErrorBoundary } from '../ui/ErrorBoundary'
+import { Button } from '../ui/Button'
 import { useDashboard } from '@/app/lib/hooks/useDashboard'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 
@@ -56,13 +56,15 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               <p className="text-red-300/80 text-xs mb-4">
                 {error}
               </p>
-              <button
+              <Button
                 onClick={handleRetry}
-                className="flex items-center gap-2 px-3 py-1.5 bg-red-800/30 hover:bg-red-800/50 border border-red-600/30 rounded text-red-200 text-xs transition-colors"
+                variant="danger"
+                size="sm"
+                className="text-xs"
               >
-                <RefreshCw className="h-3 w-3" />
+                <RefreshCw className="h-3 w-3 mr-1" />
                 Réessayer
-              </button>
+              </Button>
             </div>
           </div>
         </div>

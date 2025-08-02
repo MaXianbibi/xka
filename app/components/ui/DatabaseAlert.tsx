@@ -2,6 +2,7 @@
 
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
+import { Button } from './Button'
 
 interface DatabaseAlertProps {
   isVisible: boolean
@@ -35,14 +36,15 @@ export function DatabaseAlert({ isVisible, onRetry }: DatabaseAlertProps) {
         </p>
       </div>
       {onRetry && (
-        <button
+        <Button
           onClick={handleRetry}
-          disabled={isRetrying}
-          className="flex items-center gap-2 px-3 py-1.5 bg-yellow-800/30 hover:bg-yellow-800/50 border border-yellow-600/30 rounded text-yellow-200 text-xs transition-colors disabled:opacity-50"
+          isLoading={isRetrying}
+          size="sm"
+          className="bg-yellow-800/30 hover:bg-yellow-800/50 border-yellow-600/30 text-yellow-200 text-xs"
         >
-          <RefreshCw className={`h-3 w-3 ${isRetrying ? 'animate-spin' : ''}`} />
+          <RefreshCw className="h-3 w-3 mr-1" />
           {isRetrying ? 'Vérification...' : 'Réessayer'}
-        </button>
+        </Button>
       )}
     </div>
   )

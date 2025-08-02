@@ -1,7 +1,17 @@
 'use server'
 
+import { revalidateTag } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { getCachedWorkflows, getCachedStats } from '../cache/workflowCache'
 import { isDatabaseAvailable } from '../utils/databaseStatus'
+import { 
+  createWorkflow, 
+  updateWorkflow, 
+  deleteWorkflow,
+  type NewWorkflow 
+} from '../drizzle/operations'
+
+// ==================== DASHBOARD ACTIONS ====================
 
 export async function getDashboardData() {
   const defaultStats = {
@@ -12,15 +22,10 @@ export async function getDashboardData() {
     avgRuntime: 0
   }
 
-  // Stratégie simple : essayer de charger les workflows
-  // Si ça échoue avec une erreur de connexion DB → DB offline
-  // Sinon → DB online
-  
   try {
     const workflows = await getCachedWorkflows()
     const stats = await getCachedStats()
     
-    // Si on arrive ici, la DB fonctionne
     return {
       workflows,
       stats,
@@ -28,21 +33,18 @@ export async function getDashboardData() {
       error: null
     }
   } catch (err: any) {
-    // Vérifier si c'est une erreur de connexion DB
     const isDbError = err.message?.includes('Database connection failed') || 
                       err.message?.includes('ECONNREFUSED') ||
                       err.message?.includes('Failed query')
     
     if (isDbError) {
-      // DB offline
       return {
         workflows: [],
         stats: defaultStats,
         dbStatus: false,
-        error: null // Pas d'erreur, juste DB offline
+        error: null
       }
     } else {
-      // Autre erreur
       return {
         workflows: [],
         stats: defaultStats,
@@ -53,11 +55,48 @@ export async function getDashboardData() {
   }
 }
 
-export async function checkDatabaseStatus() {
+// ==================== WORKFLOW ACTIONS ====================
+
+export async function createWorkflowAction(data: Omit<NewWorkflow, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
-    const isAvailable = await isDatabaseAvailable()
-    return { available: isAvailable, error: null }
-  } catch (error: any) {
-    return { available: false, error: error.message }
+    const workflow = await createWorkflow(data)
+    revalidateTag('workflows')
+    revalidateTag('stats')
+    return { success: true, workflow }
+  } catch (error) {
+    return { success: false, error: 'Erreur lors de la création du workflow' }
   }
+}
+
+export async function updateWorkflowAction(
+  id: string, 
+  data: Partial<Omit<NewWorkflow, 'id' | 'createdAt'>>
+) {
+  try {
+    const workflow = await updateWorkflow(id, data)
+    revalidateTag('workflows')
+    revalidateTag('stats')
+    revalidateTag(`workflow-${id}`)
+    return { success: true, workflow }
+  } catch (error) {
+    return { success: false, error: 'Erreur lors de la mise à jour du workflow' }
+  }
+}
+
+export async function deleteWorkflowAction(id: string) {
+  try {
+    const workflow = await deleteWorkflow(id)
+    revalidateTag('workflows')
+    revalidateTag('stats')
+    revalidateTag(`workflow-${id}`)
+    return { success: true, workflow }
+  } catch (error) {
+    return { success: false, error: 'Erreur lors de la suppression du workflow' }
+  }
+}
+
+export async function refreshWorkflowsAction() {
+  revalidateTag('workflows')
+  revalidateTag('stats')
+  redirect('/')
 }
