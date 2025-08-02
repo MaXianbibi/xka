@@ -3,13 +3,14 @@
 import useSWR from 'swr'
 import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
+
 import { getDashboardData } from '../actions/dashboard'
 
 export function useDashboard() {
   const previousDbStatus = useRef<boolean | null>(null)
   const isFirstLoad = useRef(true)
 
-  const { data, error, mutate, isLoading } = useSWR(
+  const { data, mutate, isLoading } = useSWR(
     'dashboard-data',
     getDashboardData,
     {
@@ -17,14 +18,12 @@ export function useDashboard() {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       dedupingInterval: 5000,
-      errorRetryCount: 1, // Réduire les retry pour éviter les erreurs répétées
+      errorRetryCount: 1,
       errorRetryInterval: 10000,
-      // Pas de fallbackData pour éviter les états incohérents
       onSuccess: () => {
         isFirstLoad.current = false
       },
       onError: (error) => {
-        // Ne logger que si ce n'est pas le premier chargement
         if (!isFirstLoad.current) {
           console.warn('Dashboard data fetch failed:', error)
         }
@@ -32,18 +31,26 @@ export function useDashboard() {
     }
   )
 
-  // Gérer les notifications de changement d'état de la DB (seulement après le premier chargement)
+  // Gérer les notifications de changement d'état de la DB
   useEffect(() => {
     if (!isFirstLoad.current && data?.dbStatus !== undefined && previousDbStatus.current !== null) {
       if (!previousDbStatus.current && data.dbStatus) {
         toast.success('Base de données reconnectée !', {
           duration: 4000,
-          icon: '�'
+          style: {
+            background: '#065f46',
+            color: '#fff',
+            border: '1px solid #10b981',
+          },
         })
       } else if (previousDbStatus.current && !data.dbStatus) {
         toast.error('Connexion à la base de données perdue', {
           duration: 6000,
-          icon: '🔴'
+          style: {
+            background: '#7f1d1d',
+            color: '#fff',
+            border: '1px solid #ef4444',
+          },
         })
       }
     }
@@ -53,7 +60,6 @@ export function useDashboard() {
     }
   }, [data?.dbStatus])
 
-  // État stable : ne pas changer brusquement pendant l'hydratation
   const dbStatus = data?.dbStatus
   const finalError = !isFirstLoad.current ? (data?.error || null) : null
 
