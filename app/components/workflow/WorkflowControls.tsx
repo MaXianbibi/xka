@@ -23,6 +23,7 @@ const BUTTON_STYLES = {
 const LoadingSpinner = memo(() => (
   <div className={SPINNER_CLASSES} />
 ));
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 // Composant pour le bouton Run
 const RunButton = memo(({ 
@@ -67,6 +68,7 @@ const RunButton = memo(({
     </button>
   );
 });
+RunButton.displayName = 'RunButton';
 
 // Composant pour le bouton Stop
 const StopButton = memo(({ 
@@ -92,6 +94,7 @@ const StopButton = memo(({
     </button>
   );
 });
+StopButton.displayName = 'StopButton';
 
 // Composant pour le bouton Clear
 const ClearButton = memo(({ 
@@ -120,6 +123,7 @@ const ClearButton = memo(({
     </button>
   );
 });
+ClearButton.displayName = 'ClearButton';
 
 // Composant pour le conteneur des boutons
 const ButtonContainer = memo(({ 
@@ -150,6 +154,7 @@ const ButtonContainer = memo(({
     />
   </div>
 ));
+ButtonContainer.displayName = 'ButtonContainer';
 
 // Composant principal optimisé
 export const WorkflowControls = memo<WorkflowControlsProps>(({

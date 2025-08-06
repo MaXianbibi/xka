@@ -24,7 +24,7 @@ export function DashboardContent({ workflows }: DashboardContentProps) {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-white mb-2">Workflows</h2>
-        <p className="text-zinc-400">Gérez et surveillez vos workflows d'automatisation</p>
+        <p className="text-zinc-400">Gérez et surveillez vos workflows d&apos;automatisation</p>
       </div>
 
       <WorkflowsOverview workflows={workflows} />

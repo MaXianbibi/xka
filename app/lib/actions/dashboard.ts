@@ -3,7 +3,7 @@
 import { revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getCachedWorkflows, getCachedStats } from '../cache/workflowCache'
-import { isDatabaseAvailable } from '../utils/databaseStatus'
+// import { isDatabaseAvailable } from '../utils/databaseStatus'
 import { 
   createWorkflow, 
   updateWorkflow, 
@@ -63,7 +63,7 @@ export async function createWorkflowAction(data: Omit<NewWorkflow, 'id' | 'creat
     revalidateTag('workflows')
     revalidateTag('stats')
     return { success: true, workflow }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Erreur lors de la création du workflow' }
   }
 }
@@ -78,7 +78,7 @@ export async function updateWorkflowAction(
     revalidateTag('stats')
     revalidateTag(`workflow-${id}`)
     return { success: true, workflow }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Erreur lors de la mise à jour du workflow' }
   }
 }
@@ -90,7 +90,7 @@ export async function deleteWorkflowAction(id: string) {
     revalidateTag('stats')
     revalidateTag(`workflow-${id}`)
     return { success: true, workflow }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Erreur lors de la suppression du workflow' }
   }
 }

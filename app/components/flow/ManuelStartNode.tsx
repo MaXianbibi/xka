@@ -40,6 +40,7 @@ const StatusBadge = memo(({
     </div>
   );
 });
+StatusBadge.displayName = 'StatusBadge';
 
 // Composant pour l'en-tête du node
 const NodeHeader = memo(() => (
@@ -53,6 +54,7 @@ const NodeHeader = memo(() => (
     </div>
   </div>
 ));
+NodeHeader.displayName = 'NodeHeader';
 
 // Composant principal optimisé
 function ManualStartNode({ data, isConnectable }: NodeProps) {

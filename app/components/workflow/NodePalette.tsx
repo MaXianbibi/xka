@@ -54,34 +54,34 @@ const NODE_TEMPLATES: NodeTemplate[] = [
 ];
 
 // Fonction utilitaire pour obtenir les dimensions d'un node de manière dynamique
-const getNodeDimensions = (nodeType: string): { width: number; height: number } => {
-    // Utilise les classes CSS du WrapperNode pour calculer les dimensions
-    const BASE_WIDTH = 320; // w-80 = 320px (classe Tailwind du WrapperNode)
+// const getNodeDimensions = (nodeType: string): { width: number; height: number } => {
+//     // Utilise les classes CSS du WrapperNode pour calculer les dimensions
+//     const BASE_WIDTH = 320; // w-80 = 320px (classe Tailwind du WrapperNode)
     
-    // Si on peut accéder au DOM, on essaie de mesurer un node existant
-    if (typeof window !== 'undefined') {
-        const existingNode = document.querySelector(`[data-id*="${nodeType}"]`);
-        if (existingNode) {
-            const rect = existingNode.getBoundingClientRect();
-            return { width: rect.width, height: rect.height };
-        }
-    }
+//     // Si on peut accéder au DOM, on essaie de mesurer un node existant
+//     if (typeof window !== 'undefined') {
+//         const existingNode = document.querySelector(`[data-id*="${nodeType}"]`);
+//         if (existingNode) {
+//             const rect = existingNode.getBoundingClientRect();
+//             return { width: rect.width, height: rect.height };
+//         }
+//     }
     
-    // Estimation basée sur la complexité du contenu (plus flexible)
-    const contentComplexity = {
-        'manualStartNode': 0.8,    // Simple, peu de contenu
-        'httpRequestNode': 1.2,    // Plus complexe, plus de champs
-        'waitingNode': 1.0,        // Complexité moyenne
-    };
+//     // Estimation basée sur la complexité du contenu (plus flexible)
+//     const contentComplexity = {
+//         'manualStartNode': 0.8,    // Simple, peu de contenu
+//         'httpRequestNode': 1.2,    // Plus complexe, plus de champs
+//         'waitingNode': 1.0,        // Complexité moyenne
+//     };
     
-    const complexity = contentComplexity[nodeType as keyof typeof contentComplexity] || 1.0;
-    const estimatedHeight = Math.round(100 * complexity); // Base de 100px * complexité
+//     const complexity = contentComplexity[nodeType as keyof typeof contentComplexity] || 1.0;
+//     const estimatedHeight = Math.round(100 * complexity); // Base de 100px * complexité
     
-    return { 
-        width: BASE_WIDTH, 
-        height: estimatedHeight 
-    };
-};
+//     return { 
+//         width: BASE_WIDTH, 
+//         height: estimatedHeight 
+//     };
+// };
 
 // Styles CSS en constante pour éviter les re-créations
 const SCROLLBAR_STYLES = `
@@ -147,7 +147,7 @@ NodeItem.displayName = 'NodeItem';
 const EmptyState = memo<{ searchTerm: string }>(({ searchTerm }) => (
     <div className="text-center py-8">
         <div className="text-zinc-500 text-2xl mb-2">⌕</div>
-        <p className="text-zinc-400 text-sm">Aucun résultat pour "{searchTerm}"</p>
+        <p className="text-zinc-400 text-sm">Aucun résultat pour &quot;{searchTerm}&quot;</p>
     </div>
 ));
 

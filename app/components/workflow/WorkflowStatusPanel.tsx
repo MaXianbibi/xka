@@ -76,7 +76,7 @@ export const WorkflowStatusPanel = memo<StatusPanelProps>(({
     const workflowLogs = workflowStatus.logs?.length || 0;
     const nodeLogs = workflowStatus.nodes?.reduce((acc, node) => acc + (node.logs?.length || 0), 0) || 0;
     return workflowLogs + nodeLogs;
-  }, [workflowStatus?.logs, workflowStatus?.nodes]);
+  }, [workflowStatus]);
 
   const workflowId = useMemo(() => {
     if (!workflowStatus?.workflowId) return '';

@@ -50,6 +50,7 @@ const DurationInput = memo(({
     </div>
   );
 });
+DurationInput.displayName = 'DurationInput';
 
 // Composant pour le badge de statut
 const StatusBadge = memo(({ 
@@ -74,6 +75,7 @@ const StatusBadge = memo(({
     </div>
   );
 });
+StatusBadge.displayName = 'StatusBadge';
 
 // Composant pour l'en-tête du node
 const NodeHeader = memo(() => (
@@ -87,6 +89,7 @@ const NodeHeader = memo(() => (
     </div>
   </div>
 ));
+NodeHeader.displayName = 'NodeHeader';
 
 // Composant principal optimisé
 function WaitingNode({ id, data, isConnectable }: NodeProps) {

@@ -12,7 +12,7 @@ export function DashboardHeader() {
               Tableau de bord
             </h1>
             <p className="text-xs text-zinc-400 mt-1">
-              Vue d'ensemble de vos workflows et exécutions
+              Vue d&apos;ensemble de vos workflows et exécutions
             </p>
           </div>
 

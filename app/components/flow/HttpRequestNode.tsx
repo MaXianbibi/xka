@@ -37,6 +37,7 @@ const MethodOptions = memo(() => (
     ))}
   </>
 ));
+MethodOptions.displayName = 'MethodOptions';
 
 // Composant pour le sélecteur de méthode HTTP
 const MethodSelector = memo(({ 
@@ -65,6 +66,7 @@ const MethodSelector = memo(({
     </select>
   );
 });
+MethodSelector.displayName = 'MethodSelector';
 
 // Composant pour le champ URL
 const UrlInput = memo(({ 
@@ -88,6 +90,7 @@ const UrlInput = memo(({
     />
   );
 });
+UrlInput.displayName = 'UrlInput';
 
 // Composant pour le badge de statut
 const StatusBadge = memo(({ 
@@ -112,6 +115,7 @@ const StatusBadge = memo(({
     </div>
   );
 });
+StatusBadge.displayName = 'StatusBadge';
 
 // Composant pour l'en-tête du node
 const NodeHeader = memo(() => (
@@ -125,6 +129,7 @@ const NodeHeader = memo(() => (
     </div>
   </div>
 ));
+NodeHeader.displayName = 'NodeHeader';
 
 // Composant principal optimisé
 function HttpRequestNode({ id, data, isConnectable }: NodeProps) {

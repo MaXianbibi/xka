@@ -17,7 +17,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
               : 'border-transparent text-zinc-400 hover:text-zinc-300'
           }`}
         >
-          Vue d'ensemble
+          Vue d&apos;ensemble
         </button>
         <button
           onClick={() => onTabChange('history')}

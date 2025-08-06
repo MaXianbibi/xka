@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, memo, useMemo, useCallback } from 'react';
+import React, { useState, memo, useMemo, useCallback } from 'react';
 import { MdExpandMore, MdExpandLess, MdKeyboardArrowRight, MdKeyboardArrowDown } from 'react-icons/md';
 import { WorkflowNodeWrapperProps, ExecutionData } from "@/app/lib/types/types";
 
@@ -31,7 +31,7 @@ const STATUS_CONFIG = {
 } as const;
 
 const PRIMITIVE_STYLES = {
-  string: { className: 'text-green-300', format: (value: string) => `"${value.length > 100 ? `${value.substring(0, 100)}...` : value}"` },
+  string: { className: 'text-green-300', format: (value: string) => `&quot;${value.length > 100 ? `${value.substring(0, 100)}...` : value}&quot;` },
   number: { className: 'text-blue-300', format: (value: number) => value.toString() },
   boolean: { className: 'text-purple-300', format: (value: boolean) => value.toString() },
   null: { className: 'text-zinc-400', format: () => 'null' },
@@ -124,7 +124,7 @@ const JsonValue = memo(({ value, level = 0 }: { value: any; level?: number }) =>
           <div className="ml-4 border-l border-zinc-700 pl-2 mt-1">
             {keys.slice(0, 20).map(key => (
               <div key={key} className="py-1">
-                <span className="text-orange-300 text-sm">"{key}"</span>
+                <span className="text-orange-300 text-sm">&quot;{key}&quot;</span>
                 <span className="text-zinc-500">: </span>
                 <JsonValue value={value[key]} level={level + 1} />
               </div>
@@ -142,6 +142,7 @@ const JsonValue = memo(({ value, level = 0 }: { value: any; level?: number }) =>
 
   return <span className="text-zinc-300">{String(value)}</span>;
 });
+JsonValue.displayName = 'JsonValue';
 
 const TabNavigation = memo(({
   executionData,
@@ -186,6 +187,7 @@ const TabNavigation = memo(({
     </div>
   );
 });
+TabNavigation.displayName = 'TabNavigation';
 
 const TabContent = memo(({
   activeTab,
@@ -242,6 +244,7 @@ const TabContent = memo(({
     </div>
   );
 });
+TabContent.displayName = 'TabContent';
 
 const ExecutionStatus = memo(({
   status,
@@ -280,6 +283,7 @@ const ExecutionStatus = memo(({
     </div>
   );
 });
+ExecutionStatus.displayName = 'ExecutionStatus';
 
 const ExecutionFooter = memo(({
   nodeId,
@@ -319,6 +323,7 @@ const ExecutionFooter = memo(({
     </div>
   );
 });
+ExecutionFooter.displayName = 'ExecutionFooter';
 
 const WorkflowNodeWrapper = memo(function WorkflowNodeWrapper({
   data,

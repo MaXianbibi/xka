@@ -12,13 +12,13 @@ const BAR_STYLE = "bg-blue-400 h-full rounded-full transition-all duration-500 e
 const MIN_PROGRESS = 0.1;
 
 export const ProgressBar = memo<{ progress: number }>(({ progress }) => {
-  // Early return si pas de progression ou valeur trop faible
-  if (progress <= MIN_PROGRESS) return null;
-
   // Memoization du style de la barre pour éviter les recalculs
   const barWidthStyle = useMemo(() => ({
     width: `${Math.min(progress, 100)}%`
   }), [progress]);
+
+  // Early return si pas de progression ou valeur trop faible
+  if (progress <= MIN_PROGRESS) return null;
 
   return (
     <div className={CONTAINER_STYLE}>

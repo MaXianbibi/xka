@@ -1,5 +1,5 @@
 import { eq, desc, asc, like, and, or, ne, count } from 'drizzle-orm'
-import { db, workflows, workflowExecutionResults, type Workflow, type NewWorkflow, type WorkflowWithExecutions } from '../drizzle'
+import { db, workflows, workflowExecutionResults, type NewWorkflow, type WorkflowWithExecutions } from '../drizzle'
 
 // ==================== CREATE ====================
 
